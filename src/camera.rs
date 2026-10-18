@@ -12,20 +12,23 @@ pub(crate) struct OrbitCamera {
 }
 
 impl OrbitCamera {
-    pub(crate) fn init(yaw: f32, pitch: f32) -> Self {
-        Self { yaw, pitch }
+    pub(crate) fn init() -> Self {
+        Self {
+            yaw: 0.7,
+            pitch: 0.45,
+        }
+    }
+
+    pub(crate) fn get_position(&self) -> Vec3 {
+        Vec3::new(
+            CAMERA_DISTANCE * self.yaw.sin() * self.pitch.cos(),
+            CAMERA_DISTANCE * self.pitch.sin(),
+            CAMERA_DISTANCE * self.yaw.cos() * self.pitch.cos(),
+        )
     }
 }
 
-pub(crate) fn orbit_position(yaw: f32, pitch: f32) -> Vec3 {
-    Vec3::new(
-        CAMERA_DISTANCE * yaw.sin() * pitch.cos(),
-        CAMERA_DISTANCE * pitch.sin(),
-        CAMERA_DISTANCE * yaw.cos() * pitch.cos(),
-    )
-}
-
-pub(crate) fn orbit_camera(
+fn rotate_camera(
     mouse_motion: Res<AccumulatedMouseMotion>,
     buttons: Res<ButtonInput<MouseButton>>,
     mut cameras: Query<(&mut Transform, &mut OrbitCamera)>,
@@ -40,16 +43,23 @@ pub(crate) fn orbit_camera(
         return;
     }
 
-    for (mut transform, mut orbit) in &mut cameras {
-        orbit.yaw -= delta.x * SENSITIVITY;
-        orbit.pitch += delta.y * SENSITIVITY;
+    for (mut transform, mut orbit_camera) in &mut cameras {
+        orbit_camera.yaw -= delta.x * SENSITIVITY;
+        orbit_camera.pitch += delta.y * SENSITIVITY;
 
         // Prevent flipping over the poles
-        orbit.pitch = orbit.pitch.clamp(-1.5, 1.5);
+        orbit_camera.pitch = orbit_camera.pitch.clamp(-1.5, 1.5);
 
-        transform.translation = orbit_position(orbit.yaw, orbit.pitch);
+        transform.translation = orbit_camera.get_position();
 
         // Always look at the world origin
         transform.look_at(TARGET_CAMERA_VIEW, Vec3::Y);
     }
+}
+pub(crate) fn orbit_camera(
+    mouse_motion: Res<AccumulatedMouseMotion>,
+    buttons: Res<ButtonInput<MouseButton>>,
+    cameras: Query<(&mut Transform, &mut OrbitCamera)>,
+) {
+    rotate_camera(mouse_motion, buttons, cameras);
 }

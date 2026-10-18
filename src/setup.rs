@@ -20,14 +20,12 @@ pub(crate) fn setup(
     ));
 
     // Orbit camera
-    let yaw: f32 = 0.7;
-    let pitch: f32 = 0.45;
-
-    let position = camera::orbit_position(yaw, pitch);
+    let orbit_camera = camera::OrbitCamera::init();
+    let position = orbit_camera.get_position();
 
     commands.spawn((
         Camera3d::default(),
         Transform::from_translation(position).looking_at(camera::TARGET_CAMERA_VIEW, Vec3::Y),
-        camera::OrbitCamera::init(yaw, pitch),
+        orbit_camera,
     ));
 }
