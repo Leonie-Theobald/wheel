@@ -89,6 +89,6 @@ pub(crate) fn orbit_camera(
     buttons: Res<ButtonInput<MouseButton>>,
     mut cameras: Query<(&mut Transform, &mut OrbitCamera)>,
 ) {
-    zoom_camera(&mouse_scroll, &buttons, &mut cameras);
+    zoom_camera(&mouse_scroll, &mut cameras);
     rotate_camera(&mouse_motion, &buttons, &mut cameras);
 }

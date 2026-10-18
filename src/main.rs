@@ -1,4 +1,5 @@
 mod camera;
+mod disc;
 mod setup;
 
 use bevy::prelude::*;
