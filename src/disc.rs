@@ -23,3 +23,23 @@ impl Disc {
         }
     }
 }
+
+pub(crate) fn toggle_active_states(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut discs: Query<(&mut Disc, &MeshMaterial3d<StandardMaterial>)>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    if !keys.just_pressed(KeyCode::KeyC) {
+        return;
+    }
+
+    for (mut disc, material_handle) in &mut discs {
+        // Switch state
+        disc.active = !disc.active;
+
+        // Update the rendered material
+        if let Some(mut material) = materials.get_mut(&material_handle.0) {
+            material.base_color = disc.get_color();
+        }
+    }
+}
