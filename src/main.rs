@@ -10,5 +10,6 @@ fn main() {
         .add_systems(Startup, setup::setup)
         .add_systems(Update, camera::orbit_camera)
         .add_systems(Update, disc::toggle_active_states)
+        .add_systems(Update, disc::step_in_rotation)
         .run();
 }

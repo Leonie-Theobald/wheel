@@ -19,7 +19,9 @@ pub(crate) fn setup(
                 base_color: disc.get_color(),
                 ..default()
             })),
-            Transform::from_xyz(0., height_offset, 0.),
+            Transform::from_xyz(0., height_offset, 0.)
+                // temporarily use a stretched circle to see rotations better
+                .with_scale(Vec3::new(1.0, 1.0, 0.3)),
         ));
 
         height_offset -= 1.1;

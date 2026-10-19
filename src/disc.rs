@@ -4,11 +4,16 @@ use bevy::prelude::*;
 pub(crate) struct Disc {
     radius: f32,
     active: bool,
+    rotation: u8,
 }
 
 impl Disc {
     pub(crate) fn init(radius: f32, active: bool) -> Self {
-        Self { radius, active }
+        Self {
+            radius,
+            active,
+            rotation: 0,
+        }
     }
 
     pub(crate) fn get_radius(&self) -> f32 {
@@ -41,5 +46,27 @@ pub(crate) fn toggle_active_states(
         if let Some(mut material) = materials.get_mut(&material_handle.0) {
             material.base_color = disc.get_color();
         }
+    }
+}
+
+pub(crate) fn step_in_rotation(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut discs: Query<(&mut Disc, &mut Transform)>,
+) {
+    if !keys.just_pressed(KeyCode::KeyR) {
+        return;
+    }
+
+    for (mut disc, mut transform) in &mut discs {
+        if !disc.active {
+            continue;
+        }
+
+        // Update the rotation position
+        disc.rotation = (disc.rotation + 1) % 16;
+
+        // 2 * PI / 16 = 22.5 => it takes 16 steps to make a full rotation
+        // 2 * PI = TAU
+        transform.rotate_y(std::f32::consts::TAU / 16.0);
     }
 }
