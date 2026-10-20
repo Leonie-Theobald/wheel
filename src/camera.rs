@@ -7,6 +7,17 @@ const SENSITIVITY_ZOOM: f32 = 0.02;
 const CAMERA_DISTANCE_MIN: f32 = 10.;
 const CAMERA_DISTANCE_MAX: f32 = 50.;
 
+pub(crate) fn setup(mut commands: Commands) {
+    let orbit_camera = OrbitCamera::init();
+    let position = orbit_camera.get_position();
+
+    commands.spawn((
+        Camera3d::default(),
+        Transform::from_translation(position).looking_at(TARGET_CAMERA_VIEW, Vec3::Y),
+        orbit_camera,
+    ));
+}
+
 #[derive(Component)]
 pub(crate) struct OrbitCamera {
     yaw: f32,
