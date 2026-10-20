@@ -29,6 +29,18 @@ impl Disc {
     }
 }
 
+#[derive(Default, Resource)]
+pub(crate) struct ActiveDisc {
+    entity: Option<Entity>,
+}
+
+impl ActiveDisc {
+    pub(crate) fn init(entity: Entity) -> Self {
+        Self {
+            entity: Some(entity),
+        }
+    }
+}
 pub(crate) fn toggle_active_states(
     keys: Res<ButtonInput<KeyCode>>,
     mut discs: Query<(&mut Disc, &MeshMaterial3d<StandardMaterial>)>,
