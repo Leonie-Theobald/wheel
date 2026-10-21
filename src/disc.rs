@@ -83,17 +83,6 @@ pub(crate) struct Discs {
 }
 
 impl Discs {
-    // pub(crate) fn init(entities: [Entity; 4]) -> Self {
-    //     Self {
-    //         entities: Vec::from(entities),
-    //         selected_disc: SelectedDisc::Top,
-    //     }
-    // }
-
-    pub(crate) fn get_selected_disc(&self) -> &SelectedDisc {
-        &self.selected_disc
-    }
-
     pub(crate) fn get_selected_disc_entity(&self) -> Entity {
         match &self.selected_disc {
             SelectedDisc::Top => self.entities[0],
@@ -103,31 +92,54 @@ impl Discs {
         }
     }
 
-    pub(crate) fn set_selected_disc(&mut self, new_selected_disc: SelectedDisc) {
-        self.selected_disc = new_selected_disc;
+    /// The discs are vertically stacked \
+    /// This function makes the disc above the currently selected disc the newly selected disc \
+    /// If the currently selected disc is the top one, it wraps around to the bottom disc
+    pub(crate) fn select_next_upper_disc(&mut self) {
+        match self.selected_disc {
+            SelectedDisc::Top => {
+                self.selected_disc = SelectedDisc::Bottom;
+            }
+            SelectedDisc::UpperMiddle => {
+                self.selected_disc = SelectedDisc::Top;
+            }
+            SelectedDisc::LowerMiddle => {
+                self.selected_disc = SelectedDisc::UpperMiddle;
+            }
+            SelectedDisc::Bottom => {
+                self.selected_disc = SelectedDisc::LowerMiddle;
+            }
+        };
+    }
+
+    /// The discs are vertically stacked \
+    /// This function makes the disc below the currently selected disc the newly selected disc \
+    /// If the currently selected disc is the bottom one, it wraps around to the top disc
+    pub(crate) fn select_next_lower_disc(&mut self) {
+        match self.selected_disc {
+            SelectedDisc::Top => {
+                self.selected_disc = SelectedDisc::UpperMiddle;
+            }
+            SelectedDisc::UpperMiddle => {
+                self.selected_disc = SelectedDisc::LowerMiddle;
+            }
+            SelectedDisc::LowerMiddle => {
+                self.selected_disc = SelectedDisc::Bottom;
+            }
+            SelectedDisc::Bottom => {
+                self.selected_disc = SelectedDisc::Top;
+            }
+        };
     }
 }
 
 pub(crate) fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: ResMut<Discs>) {
-    if !keys.just_pressed(KeyCode::KeyC) {
-        return;
+    if keys.just_pressed(KeyCode::ArrowUp) {
+        discs.select_next_upper_disc();
     }
-
-    // change what disc is selected
-    match discs.get_selected_disc() {
-        SelectedDisc::Top => {
-            discs.set_selected_disc(SelectedDisc::UpperMiddle);
-        }
-        SelectedDisc::UpperMiddle => {
-            discs.set_selected_disc(SelectedDisc::LowerMiddle);
-        }
-        SelectedDisc::LowerMiddle => {
-            discs.set_selected_disc(SelectedDisc::Bottom);
-        }
-        SelectedDisc::Bottom => {
-            discs.set_selected_disc(SelectedDisc::Top);
-        }
-    };
+    if keys.just_pressed(KeyCode::ArrowDown) {
+        discs.select_next_lower_disc();
+    }
 }
 
 pub(crate) fn step_in_rotation(
