@@ -90,50 +90,61 @@ impl Discs {
         &self.selected_disc
     }
 
+    pub(crate) fn get_selected_disc_entity(&self) -> Entity {
+        match &self.selected_disc {
+            SelectedDisc::Top => self.entities[0],
+            SelectedDisc::UpperMiddle => self.entities[1],
+            SelectedDisc::LowerMiddle => self.entities[2],
+            SelectedDisc::Bottom => self.entities[3],
+        }
+    }
+
     pub(crate) fn set_selected_disc(&mut self, new_selected_disc: SelectedDisc) {
         self.selected_disc = new_selected_disc;
     }
 }
 
-pub(crate) fn toggle_active_states(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut discs: ResMut<Discs>,
+pub(crate) fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: ResMut<Discs>) {
+    if !keys.just_pressed(KeyCode::KeyC) {
+        return;
+    }
+
+    // change what disc is active
+    match discs.get_selected_disc() {
+        SelectedDisc::Top => {
+            discs.set_selected_disc(SelectedDisc::UpperMiddle);
+        }
+        SelectedDisc::UpperMiddle => {
+            discs.set_selected_disc(SelectedDisc::LowerMiddle);
+        }
+        SelectedDisc::LowerMiddle => {
+            discs.set_selected_disc(SelectedDisc::Bottom);
+        }
+        SelectedDisc::Bottom => {
+            discs.set_selected_disc(SelectedDisc::Top);
+        }
+    };
+}
+
+pub(crate) fn color_discs(
+    discs: ResMut<Discs>,
     mut disc_list: Query<(&mut Disc, &MeshMaterial3d<StandardMaterial>)>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    if !keys.just_pressed(KeyCode::KeyC) {
+    if !discs.is_changed() {
         return;
     }
 
     // go through discs and reset optic for all discs
     for (_disc, material_handle) in &disc_list {
         if let Some(mut material) = materials.get_mut(&material_handle.0) {
-            material.base_color = Color::srgb(0.2, 0.6, 0.9);
+            material.base_color = COLOR_NOT_SELECTED;
         }
     }
 
-    // change what disc is active
-    let new_selected_disc_entity = match discs.get_selected_disc() {
-        SelectedDisc::Top => {
-            discs.set_selected_disc(SelectedDisc::UpperMiddle);
-            discs.entities[1]
-        }
-        SelectedDisc::UpperMiddle => {
-            discs.set_selected_disc(SelectedDisc::LowerMiddle);
-            discs.entities[2]
-        }
-        SelectedDisc::LowerMiddle => {
-            discs.set_selected_disc(SelectedDisc::Bottom);
-            discs.entities[3]
-        }
-        SelectedDisc::Bottom => {
-            discs.set_selected_disc(SelectedDisc::Top);
-            discs.entities[0]
-        }
-    };
-
     // change optic for selected disc
-    let (_selected_disc, material_handle) = disc_list.get_mut(new_selected_disc_entity).unwrap();
+    let selected_disc_entity = discs.get_selected_disc_entity();
+    let (_selected_disc, material_handle) = disc_list.get_mut(selected_disc_entity).unwrap();
     if let Some(mut material) = materials.get_mut(&material_handle.0) {
         material.base_color = COLOR_SELECTED;
     }
@@ -148,16 +159,9 @@ pub(crate) fn step_in_rotation(
         return;
     }
 
-    let selected_disc_entity = match discs.get_selected_disc() {
-        SelectedDisc::Top => discs.entities[0],
-        SelectedDisc::UpperMiddle => discs.entities[1],
-        SelectedDisc::LowerMiddle => discs.entities[2],
-        SelectedDisc::Bottom => discs.entities[3],
-    };
-
     // change rotation for selected disc
+    let selected_disc_entity = discs.get_selected_disc_entity();
     let (mut selected_disc, mut transform) = disc_list.get_mut(selected_disc_entity).unwrap();
-    // Update the rotation position
     selected_disc.rotation = (selected_disc.rotation + 1) % 16;
 
     // 2 * PI / 16 = 22.5 => it takes 16 steps each 22.5 rad to make a full rotation

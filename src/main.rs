@@ -11,7 +11,10 @@ fn main() {
         .init_resource::<Discs>()
         .add_systems(Startup, (world::setup, camera::setup, disc::setup))
         .add_systems(Update, camera::orbit_camera)
-        .add_systems(Update, disc::toggle_active_states)
+        .add_systems(
+            Update,
+            (disc::toggle_active_states, disc::color_discs).chain(),
+        )
         .add_systems(Update, disc::step_in_rotation)
         .run();
 }
