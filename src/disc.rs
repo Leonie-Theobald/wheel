@@ -42,6 +42,8 @@ pub(crate) fn setup(
 
         height_offset -= 1.1;
     }
+
+    discs.selected_disc = SelectedDisc::Top;
 }
 
 #[derive(Clone, Component)]
@@ -64,6 +66,15 @@ impl Disc {
 
     pub(crate) fn get_rotation_angle(&self) -> f32 {
         self.rotation as f32 * std::f32::consts::TAU / 16.0
+    }
+
+    pub(crate) fn step_once_clockwise(&mut self) {
+        self.rotation = (self.rotation + 1) % 16;
+    }
+
+    pub(crate) fn step_once_counter_clockwise(&mut self) {
+        // use +15 instead of -1 to avoid underflow
+        self.rotation = (self.rotation + 15) % 16;
     }
 }
 
@@ -147,14 +158,15 @@ pub(crate) fn step_in_rotation(
     discs: Res<Discs>,
     mut disc_list: Query<&mut Disc>,
 ) {
-    if !keys.just_pressed(KeyCode::KeyR) {
-        return;
-    }
-
-    // change rotation for selected disc
     let selected_disc_entity = discs.get_selected_disc_entity();
     let mut selected_disc = disc_list.get_mut(selected_disc_entity).unwrap();
-    selected_disc.rotation = (selected_disc.rotation + 1) % 16;
+
+    if keys.just_pressed(KeyCode::ArrowLeft) {
+        selected_disc.step_once_counter_clockwise();
+    }
+    if keys.just_pressed(KeyCode::ArrowRight) {
+        selected_disc.step_once_clockwise();
+    }
 }
 
 pub(crate) fn color_discs(
