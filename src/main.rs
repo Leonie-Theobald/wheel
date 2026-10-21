@@ -13,8 +13,12 @@ fn main() {
         .add_systems(Update, camera::orbit_camera)
         .add_systems(
             Update,
-            (disc::toggle_active_states, disc::color_discs).chain(),
+            (
+                disc::toggle_active_states,
+                disc::step_in_rotation,
+                disc::color_discs,
+                disc::rotate_discs,
+            ),
         )
-        .add_systems(Update, disc::step_in_rotation)
         .run();
 }

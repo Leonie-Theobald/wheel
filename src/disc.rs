@@ -61,6 +61,10 @@ impl Disc {
     pub(crate) fn get_radius(&self) -> f32 {
         self.radius
     }
+
+    pub(crate) fn get_rotation_angle(&self) -> f32 {
+        self.rotation as f32 * std::f32::consts::TAU / 16.0
+    }
 }
 
 #[derive(Default)]
@@ -109,7 +113,7 @@ pub(crate) fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: R
         return;
     }
 
-    // change what disc is active
+    // change what disc is selected
     match discs.get_selected_disc() {
         SelectedDisc::Top => {
             discs.set_selected_disc(SelectedDisc::UpperMiddle);
@@ -126,34 +130,10 @@ pub(crate) fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: R
     };
 }
 
-pub(crate) fn color_discs(
-    discs: ResMut<Discs>,
-    mut disc_list: Query<(&mut Disc, &MeshMaterial3d<StandardMaterial>)>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    if !discs.is_changed() {
-        return;
-    }
-
-    // go through discs and reset optic for all discs
-    for (_disc, material_handle) in &disc_list {
-        if let Some(mut material) = materials.get_mut(&material_handle.0) {
-            material.base_color = COLOR_NOT_SELECTED;
-        }
-    }
-
-    // change optic for selected disc
-    let selected_disc_entity = discs.get_selected_disc_entity();
-    let (_selected_disc, material_handle) = disc_list.get_mut(selected_disc_entity).unwrap();
-    if let Some(mut material) = materials.get_mut(&material_handle.0) {
-        material.base_color = COLOR_SELECTED;
-    }
-}
-
 pub(crate) fn step_in_rotation(
     keys: Res<ButtonInput<KeyCode>>,
-    discs: ResMut<Discs>,
-    mut disc_list: Query<(&mut Disc, &mut Transform)>,
+    discs: Res<Discs>,
+    mut disc_list: Query<&mut Disc>,
 ) {
     if !keys.just_pressed(KeyCode::KeyR) {
         return;
@@ -161,10 +141,33 @@ pub(crate) fn step_in_rotation(
 
     // change rotation for selected disc
     let selected_disc_entity = discs.get_selected_disc_entity();
-    let (mut selected_disc, mut transform) = disc_list.get_mut(selected_disc_entity).unwrap();
+    let mut selected_disc = disc_list.get_mut(selected_disc_entity).unwrap();
     selected_disc.rotation = (selected_disc.rotation + 1) % 16;
+}
 
-    // 2 * PI / 16 = 22.5 => it takes 16 steps each 22.5 rad to make a full rotation
-    // 2 * PI = TAU
-    transform.rotate_y(std::f32::consts::TAU / 16.0);
+pub(crate) fn color_discs(
+    discs: ResMut<Discs>,
+    mut disc_list: Query<&MeshMaterial3d<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    // only necessary when the selected disc has changed
+    if !discs.is_changed() {
+        return;
+    }
+
+    // reset color optic and show correct rotation of all discs
+    for material_handle in &mut disc_list {
+        materials.get_mut(&material_handle.0).unwrap().base_color = COLOR_NOT_SELECTED;
+    }
+
+    // change color for selected disc
+    let selected_disc_entity = discs.get_selected_disc_entity();
+    let material_handle = disc_list.get(selected_disc_entity).unwrap();
+    materials.get_mut(&material_handle.0).unwrap().base_color = COLOR_SELECTED;
+}
+
+pub(crate) fn rotate_discs(mut disc_list: Query<(&Disc, &mut Transform), Changed<Disc>>) {
+    for (disc, mut transform) in &mut disc_list {
+        transform.rotation = Quat::from_rotation_y(disc.get_rotation_angle());
+    }
 }
