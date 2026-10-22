@@ -20,9 +20,9 @@ pub(crate) fn step_in_rotation(
     let mut selected_disc = disc_list.get_mut(selected_disc_entity).unwrap();
 
     if keys.just_pressed(KeyCode::ArrowLeft) {
-        selected_disc.step_once_counter_clockwise();
+        selected_disc.step_once_clockwise();
     }
     if keys.just_pressed(KeyCode::ArrowRight) {
-        selected_disc.step_once_clockwise();
+        selected_disc.step_once_counter_clockwise();
     }
 }
