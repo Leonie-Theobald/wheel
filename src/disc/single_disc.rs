@@ -1,21 +1,53 @@
+use super::full_disc::FullDisc;
+use super::gear::Gear;
 use bevy::prelude::*;
+
+#[derive(Clone)]
+enum Disc {
+    Gear(Gear),
+    FullDisc(FullDisc),
+}
 
 #[derive(Clone, Component)]
 pub(crate) struct SingleDisc {
-    radius: f32,
+    disc: Disc,
     rotation: u8,
 }
 
 impl SingleDisc {
-    pub(crate) fn init(radius: f32) -> Self {
+    pub(crate) fn init_gear(radius: f32) -> Self {
+        let gear = Gear::init(radius);
+
         Self {
-            radius,
+            disc: Disc::Gear(gear),
             rotation: 0,
         }
     }
 
+    pub(crate) fn init_full_disc(radius: f32) -> Self {
+        let full_disc = FullDisc::init(radius);
+
+        Self {
+            disc: Disc::FullDisc(full_disc),
+            rotation: 0,
+        }
+    }
+
+    pub(crate) fn generate_mesh(&self) -> Mesh {
+        match &self.disc {
+            Disc::Gear(gear) => gear.generate_gear_mesh(),
+            Disc::FullDisc(full_disc) => {
+                Mesh::from(Extrusion::new(Circle::new(full_disc.get_radius()), 1.))
+            }
+        }
+        .rotated_by(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2))
+    }
+
     pub(crate) fn get_radius(&self) -> f32 {
-        self.radius
+        match &self.disc {
+            Disc::Gear(gear) => gear.get_radius_inner(),
+            Disc::FullDisc(full_disc) => full_disc.get_radius(),
+        }
     }
 
     pub(crate) fn get_rotation_angle(&self) -> f32 {

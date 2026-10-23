@@ -1,4 +1,6 @@
 pub(crate) mod all_discs;
+mod full_disc;
+mod gear;
 pub(crate) mod modification;
 mod single_disc;
 pub(crate) mod visualization;
@@ -16,10 +18,10 @@ pub(crate) fn setup(
     asset_server: Res<AssetServer>,
 ) {
     let discs_definition = [
-        SingleDisc::init(5.),
-        SingleDisc::init(10.),
-        SingleDisc::init(15.),
-        SingleDisc::init(20.),
+        SingleDisc::init_gear(4.),
+        SingleDisc::init_gear(5.),
+        SingleDisc::init_gear(6.),
+        SingleDisc::init_full_disc(8.),
     ];
 
     // go through discs
@@ -31,18 +33,17 @@ pub(crate) fn setup(
         } else {
             COLOR_NOT_SELECTED
         };
-        // spawn wheel
+        // spawn disc
         let entity = commands
             .spawn((
                 disc.clone(),
-                Mesh3d(meshes.add(Cylinder::new(disc.get_radius(), 1.))),
+                Mesh3d(meshes.add(disc.generate_mesh())),
                 MeshMaterial3d(materials.add(StandardMaterial {
+                    cull_mode: None,
                     base_color: color,
                     ..default()
                 })),
-                Transform::from_xyz(0., height_offset, 0.),
-                // // temporarily use a stretched circle to see rotations better
-                // .with_scale(Vec3::new(1.0, 1.0, 0.3)),
+                Transform::from_xyz(0., height_offset, 0.0),
             ))
             .id();
 
@@ -50,6 +51,7 @@ pub(crate) fn setup(
         commands.spawn((
             Mesh3d(meshes.add(Circle::new(disc.get_radius()))),
             MeshMaterial3d(materials.add(StandardMaterial {
+                cull_mode: None,
                 base_color: Color::srgba(1.0, 1.0, 1.0, 0.0),
                 base_color_texture: Some(asset_server.load(format!("disc_{}.png", index + 1))),
                 alpha_mode: AlphaMode::Blend,

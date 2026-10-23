@@ -5,6 +5,44 @@ const TEETH_COUNT: u8 = 8;
 const TEETH_HEIGHT: f32 = 1.;
 const ROTATION_STEP: f32 = std::f32::consts::PI / TEETH_COUNT as f32;
 
+#[derive(Clone, Component)]
+pub(crate) struct Gear {
+    radius_inner: f32,
+}
+
+impl Gear {
+    pub(crate) fn init(radius_inner: f32) -> Self {
+        Self { radius_inner }
+    }
+
+    pub(crate) fn get_radius_inner(&self) -> f32 {
+        self.radius_inner
+    }
+
+    // Combines a regular polygon representing the inner part of gear and adding TEETH_COUNT teeth
+    // around it
+    pub(crate) fn generate_gear_mesh(&self) -> Mesh {
+        // initialize with base
+        let inner_gear_extrusion = Extrusion::new(
+            RegularPolygon::new(self.radius_inner, (2 * TEETH_COUNT) as u32),
+            GEAR_THICKNES,
+        );
+        let mut gear = Mesh::from(inner_gear_extrusion);
+
+        // add tooth extrusions
+        let mut rotational_offset = 0.;
+        for _ in 0..TEETH_COUNT {
+            let tooth_extrusion = generate_tooth_extrusion(self.radius_inner, rotational_offset);
+            gear.merge(&tooth_extrusion)
+                .expect("Tooth should be possible to merge to gear mesh");
+
+            rotational_offset += 2. * ROTATION_STEP; // steps for one tooth and one valley
+        }
+
+        gear
+    }
+}
+
 // Function draws four points (A, B, C, D) which when connected form one tooth
 // It considers the rotational_offset, e.g. PI would be an offset of half a circle, placing the
 // tooth on opposite side
@@ -56,43 +94,4 @@ fn generate_tooth_extrusion(radius_inner: f32, rotational_offset: f32) -> Mesh {
     let extrusion = Extrusion::new(shape, GEAR_THICKNES);
 
     Mesh::from(extrusion)
-}
-
-// Combines a regular polygon representing the inner part of gear and adding TEETH_COUNT teeth
-// around it
-fn generate_gear_mesh(radius_inner: f32) -> Mesh {
-    // initialize with base
-    let inner_gear_extrusion = Extrusion::new(
-        RegularPolygon::new(radius_inner, (2 * TEETH_COUNT) as u32),
-        GEAR_THICKNES,
-    );
-    let mut gear = Mesh::from(inner_gear_extrusion);
-
-    // add tooth extrusions
-    let mut rotational_offset = 0.;
-    for _ in 0..TEETH_COUNT {
-        let tooth_extrusion = generate_tooth_extrusion(radius_inner, rotational_offset);
-        gear.merge(&tooth_extrusion)
-            .expect("Tooth should be possible to merge to gear mesh");
-
-        rotational_offset += 2. * ROTATION_STEP; // steps for one tooth and one valley
-    }
-
-    gear
-}
-
-pub(crate) fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    commands.spawn((
-        Mesh3d(meshes.add(generate_gear_mesh(4.))),
-        MeshMaterial3d(materials.add(StandardMaterial {
-            cull_mode: None, // ensures that faces are visible from all orientations
-            ..default()
-        })),
-        Transform::from_xyz(0., 1., 0.)
-            .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
-    ));
 }
