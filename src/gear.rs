@@ -3,121 +3,82 @@ use bevy::prelude::*;
 const GEAR_THICKNES: f32 = 1.;
 const TEETH_COUNT: u8 = 8;
 const TEETH_HEIGHT: f32 = 1.;
-// Angle that covers one tooth and one valley
-const ROTATION_STEP: f32 = 2. / TEETH_COUNT as f32 * std::f32::consts::PI;
+const ROTATION_STEP: f32 = std::f32::consts::PI / TEETH_COUNT as f32;
 
-fn generate_points_for_base(radius_inner: f32, rotational_offset: f32) -> Vec<Vec2> {
+// Function draws four points (A, B, C, D) which when connected form one tooth
+// It considers the rotational_offset, e.g. PI would be an offset of half a circle, placing the
+// tooth on opposite side
+//
+// Simplified visualization excluding curvature
+//
+//                B___C         _
+//                |   |          |
+//                |   |          | TEETH_HEIGHT
+//         _   ___|   |___      _|
+//         |      A   D
+//         |
+//         |      ^   ^
+//         |      |   |
+//         |      |   |
+// radius_inner   |   |
+//         |      |   rotation_end
+//         |      |
+//         |      rotational_offset
+//         |
+//         |_     x  Center of gear
+fn generate_tooth_extrusion(radius_inner: f32, rotational_offset: f32) -> Mesh {
+    // generate 2D outline
+    let rotation_end = rotational_offset + ROTATION_STEP;
     let mut points = Vec::new();
 
-    let rotation_start_of_tooth = rotational_offset;
-    let rotation_end_of_tooth = rotational_offset + 0.5 * ROTATION_STEP;
-    let rotation_end_of_valley = rotational_offset + ROTATION_STEP;
-
     // point A
-    let x = radius_inner * rotation_start_of_tooth.sin();
-    let y = radius_inner * rotation_start_of_tooth.cos();
-    points.push(Vec2::new(x, y));
-
-    // point D
-    let x = radius_inner * rotation_end_of_tooth.sin();
-    let y = radius_inner * rotation_end_of_tooth.cos();
-    points.push(Vec2::new(x, y));
-
-    points
-}
-
-fn generate_points_for_one_tooth(radius_inner: f32, rotational_offset: f32) -> Vec<Vec2> {
-    let mut points = Vec::new();
-
-    let rotation_start_of_tooth = rotational_offset;
-    let rotation_end_of_tooth = rotational_offset + 0.5 * ROTATION_STEP;
-    let rotation_end_of_valley = rotational_offset + ROTATION_STEP;
-
-    // point A
-    let x = radius_inner * rotation_start_of_tooth.sin();
-    let y = radius_inner * rotation_start_of_tooth.cos();
+    let x = radius_inner * rotational_offset.sin();
+    let y = radius_inner * rotational_offset.cos();
     points.push(Vec2::new(x, y));
 
     // point B
-    let x = (radius_inner + TEETH_HEIGHT) * rotation_start_of_tooth.sin();
-    let y = (radius_inner + TEETH_HEIGHT) * rotation_start_of_tooth.cos();
+    let x = (radius_inner + TEETH_HEIGHT) * rotational_offset.sin();
+    let y = (radius_inner + TEETH_HEIGHT) * rotational_offset.cos();
     points.push(Vec2::new(x, y));
 
     // point C
-    let x = (radius_inner + TEETH_HEIGHT) * rotation_end_of_tooth.sin();
-    let y = (radius_inner + TEETH_HEIGHT) * rotation_end_of_tooth.cos();
+    let x = (radius_inner + TEETH_HEIGHT) * rotation_end.sin();
+    let y = (radius_inner + TEETH_HEIGHT) * rotation_end.cos();
     points.push(Vec2::new(x, y));
 
     // point D
-    let x = radius_inner * rotation_end_of_tooth.sin();
-    let y = radius_inner * rotation_end_of_tooth.cos();
+    let x = radius_inner * rotation_end.sin();
+    let y = radius_inner * rotation_end.cos();
     points.push(Vec2::new(x, y));
 
-    points
-}
-
-fn generate_gear_base_mesh(radius_inner: f32) -> Mesh {
-    let mut points = Vec::new();
-    let mut rotational_offset = 0.;
-    for _ in 0..TEETH_COUNT {
-        points.extend_from_slice(&generate_points_for_base(radius_inner, rotational_offset));
-        rotational_offset += ROTATION_STEP;
-    }
-
+    // extrude and mesh
     let shape = ConvexPolygon::new(points).expect("Polygon must be convex");
     let extrusion = Extrusion::new(shape, GEAR_THICKNES);
 
     Mesh::from(extrusion)
 }
 
-fn generate_gear_tooth_meshes(radius_inner: f32) -> Vec<Mesh> {
-    let mut meshes = Vec::new();
+// Combines a regular polygon representing the inner part of gear and adding TEETH_COUNT teeth
+// around it
+fn generate_gear_mesh(radius_inner: f32) -> Mesh {
+    // initialize with base
+    let inner_gear_extrusion = Extrusion::new(
+        RegularPolygon::new(radius_inner, (2 * TEETH_COUNT) as u32),
+        GEAR_THICKNES,
+    );
+    let mut gear = Mesh::from(inner_gear_extrusion);
 
+    // add tooth extrusions
     let mut rotational_offset = 0.;
     for _ in 0..TEETH_COUNT {
-        let points = generate_points_for_one_tooth(radius_inner, rotational_offset);
-        let shape = ConvexPolygon::new(points).expect("Polygon must be convex");
-        let extrusion = Extrusion::new(shape, GEAR_THICKNES);
-        let mesh = Mesh::from(extrusion);
-
-        meshes.push(mesh);
-
-        rotational_offset += ROTATION_STEP;
-    }
-
-    meshes
-}
-
-// Function draws five points (A, B, C, D, E) which when connected form one tooth plus one valley
-// It considers the rotational_offset, e.g. PI would be an offset of half a circle, placing the
-// points on opposite side
-//
-// Simplified visualization excluding curvature
-//
-//              B___C         _
-//              |   |          |
-//              |   |          | TEETH_HEIGHT
-//          _   |   |___      _|
-//         |    A   D
-//         |
-//         |    ^   ^   ^
-//         |    |   |   |
-//         |    |   |   rotation_end_of_valley
-// radius_inner |    |   |
-//         |    |   rotation_end_of_toot
-//         |    |
-//         |    rotation_start_of_tooth
-//         |
-//         |_   x  Center of gear
-fn generate_gear_mesh(radius_inner: f32) -> Mesh {
-    let mut base = generate_gear_base_mesh(radius_inner);
-
-    for mesh in generate_gear_tooth_meshes(radius_inner) {
-        base.merge(&mesh)
+        let tooth_extrusion = generate_tooth_extrusion(radius_inner, rotational_offset);
+        gear.merge(&tooth_extrusion)
             .expect("Tooth should be possible to merge to gear mesh");
+
+        rotational_offset += 2. * ROTATION_STEP; // steps for one tooth and one valley
     }
 
-    base
+    gear
 }
 
 pub(crate) fn setup(
@@ -128,9 +89,10 @@ pub(crate) fn setup(
     commands.spawn((
         Mesh3d(meshes.add(generate_gear_mesh(4.))),
         MeshMaterial3d(materials.add(StandardMaterial {
-            cull_mode: None,
+            cull_mode: None, // ensures that faces are visible from all orientations
             ..default()
         })),
-        Transform::from_xyz(0., 4., 0.),
+        Transform::from_xyz(0., 1., 0.)
+            .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
     ));
 }
