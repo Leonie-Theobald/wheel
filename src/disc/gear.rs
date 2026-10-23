@@ -7,16 +7,16 @@ const ROTATION_STEP: f32 = std::f32::consts::PI / TEETH_COUNT as f32;
 
 #[derive(Clone, Component)]
 pub(crate) struct Gear {
-    radius_inner: f32,
+    radius_outer: f32,
 }
 
 impl Gear {
-    pub(crate) fn init(radius_inner: f32) -> Self {
-        Self { radius_inner }
+    pub(crate) fn init(radius_outer: f32) -> Self {
+        Self { radius_outer }
     }
 
     pub(crate) fn get_radius_inner(&self) -> f32 {
-        self.radius_inner
+        self.radius_outer
     }
 
     // Combines a regular polygon representing the inner part of gear and adding TEETH_COUNT teeth
@@ -24,7 +24,7 @@ impl Gear {
     pub(crate) fn generate_gear_mesh(&self) -> Mesh {
         // initialize with base
         let inner_gear_extrusion = Extrusion::new(
-            RegularPolygon::new(self.radius_inner, (2 * TEETH_COUNT) as u32),
+            RegularPolygon::new(self.radius_outer - TEETH_HEIGHT, (2 * TEETH_COUNT) as u32),
             GEAR_THICKNES,
         );
         let mut gear = Mesh::from(inner_gear_extrusion);
@@ -32,7 +32,7 @@ impl Gear {
         // add tooth extrusions
         let mut rotational_offset = 0.;
         for _ in 0..TEETH_COUNT {
-            let tooth_extrusion = generate_tooth_extrusion(self.radius_inner, rotational_offset);
+            let tooth_extrusion = generate_tooth_extrusion(self.radius_outer, rotational_offset);
             gear.merge(&tooth_extrusion)
                 .expect("Tooth should be possible to merge to gear mesh");
 
@@ -64,29 +64,29 @@ impl Gear {
 //         |      rotational_offset
 //         |
 //         |_     x  Center of gear
-fn generate_tooth_extrusion(radius_inner: f32, rotational_offset: f32) -> Mesh {
+fn generate_tooth_extrusion(radius_outer: f32, rotational_offset: f32) -> Mesh {
     // generate 2D outline
     let rotation_end = rotational_offset + ROTATION_STEP;
     let mut points = Vec::new();
 
     // point A
-    let x = radius_inner * rotational_offset.sin();
-    let y = radius_inner * rotational_offset.cos();
+    let x = (radius_outer - TEETH_HEIGHT) * rotational_offset.sin();
+    let y = (radius_outer - TEETH_HEIGHT) * rotational_offset.cos();
     points.push(Vec2::new(x, y));
 
     // point B
-    let x = (radius_inner + TEETH_HEIGHT) * rotational_offset.sin();
-    let y = (radius_inner + TEETH_HEIGHT) * rotational_offset.cos();
+    let x = radius_outer * rotational_offset.sin();
+    let y = radius_outer * rotational_offset.cos();
     points.push(Vec2::new(x, y));
 
     // point C
-    let x = (radius_inner + TEETH_HEIGHT) * rotation_end.sin();
-    let y = (radius_inner + TEETH_HEIGHT) * rotation_end.cos();
+    let x = radius_outer * rotation_end.sin();
+    let y = radius_outer * rotation_end.cos();
     points.push(Vec2::new(x, y));
 
     // point D
-    let x = radius_inner * rotation_end.sin();
-    let y = radius_inner * rotation_end.cos();
+    let x = (radius_outer - TEETH_HEIGHT) * rotation_end.sin();
+    let y = (radius_outer - TEETH_HEIGHT) * rotation_end.cos();
     points.push(Vec2::new(x, y));
 
     // extrude and mesh

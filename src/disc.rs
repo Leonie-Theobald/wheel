@@ -21,7 +21,7 @@ pub(crate) fn setup(
         SingleDisc::init_gear(4.),
         SingleDisc::init_gear(5.),
         SingleDisc::init_gear(6.),
-        SingleDisc::init_full_disc(8.),
+        SingleDisc::init_full_disc(7.),
     ];
 
     // go through discs
