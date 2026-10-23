@@ -1,5 +1,6 @@
 mod camera;
 mod disc;
+mod gear;
 mod world;
 
 use crate::disc::all_discs::AllDiscs;
@@ -9,7 +10,10 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .init_resource::<AllDiscs>()
-        .add_systems(Startup, (world::setup, camera::setup, disc::setup))
+        .add_systems(
+            Startup,
+            (world::setup, camera::setup, disc::setup, gear::setup),
+        )
         .add_systems(Update, camera::orbit_camera)
         .add_systems(
             Update,
