@@ -47,7 +47,7 @@ impl OrbitCamera {
 fn rotate_camera(
     mouse_motion: &AccumulatedMouseMotion,
     buttons: &ButtonInput<MouseButton>,
-    cameras: &mut Query<(&mut Transform, &mut OrbitCamera), Without<Lighting>>,
+    camera: &mut Single<(&mut Transform, &mut OrbitCamera), Without<Lighting>>,
     lightings: &mut Query<(&mut Transform, &Lighting), Without<OrbitCamera>>,
 ) {
     if !buttons.pressed(MouseButton::Left) {
@@ -60,58 +60,54 @@ fn rotate_camera(
         return;
     }
 
-    let mut lighting_position = Vec3::ZERO;
-    for (mut camera_transform, mut orbit_camera) in cameras {
-        orbit_camera.yaw -= delta.x * SENSITIVITY_ROTATION;
-        orbit_camera.pitch += delta.y * SENSITIVITY_ROTATION;
+    let (camera_transform, orbit_camera) = &mut **camera;
+    orbit_camera.yaw -= delta.x * SENSITIVITY_ROTATION;
+    orbit_camera.pitch += delta.y * SENSITIVITY_ROTATION;
 
-        // Prevent flipping over the poles
-        orbit_camera.pitch = orbit_camera.pitch.clamp(-1.5, 1.5);
+    // Prevent flipping over the poles
+    orbit_camera.pitch = orbit_camera.pitch.clamp(-1.5, 1.5);
 
-        let position = orbit_camera.get_position();
-        camera_transform.translation = position;
+    let camera_position = orbit_camera.get_position();
+    camera_transform.translation = camera_position;
 
-        // Always look at the world origin
-        camera_transform.look_at(TARGET_CAMERA_VIEW, Vec3::Y);
+    // Always look at the world origin
+    camera_transform.look_at(TARGET_CAMERA_VIEW, Vec3::Y);
 
-        lighting_position = position;
-    }
     // Put lighting at the same position as camera
     for (mut lighting_transform, _lighting) in lightings {
-        lighting_transform.translation = lighting_position;
+        lighting_transform.translation = camera_position;
         lighting_transform.look_at(TARGET_CAMERA_VIEW, Vec3::Y);
     }
 }
 
 fn zoom_camera(
     mouse_scroll: &AccumulatedMouseScroll,
-    cameras: &mut Query<(&mut Transform, &mut OrbitCamera), Without<Lighting>>,
+    camera: &mut Single<(&mut Transform, &mut OrbitCamera), Without<Lighting>>,
 ) {
     let scroll = mouse_scroll.delta.y;
 
-    for (mut transform, mut orbit_camera) in cameras {
-        if scroll != 0.0 {
-            orbit_camera.camera_distance *= (-scroll * SENSITIVITY_ZOOM).exp();
-            orbit_camera.camera_distance = orbit_camera
-                .camera_distance
-                .clamp(CAMERA_DISTANCE_MIN, CAMERA_DISTANCE_MAX);
-        }
-
-        // Recalculate the camera position
-        transform.translation = orbit_camera.get_position();
-
-        // Always look at the world origin
-        transform.look_at(Vec3::ZERO, Vec3::Y);
+    let (transform, orbit_camera) = &mut **camera;
+    if scroll != 0.0 {
+        orbit_camera.camera_distance *= (-scroll * SENSITIVITY_ZOOM).exp();
+        orbit_camera.camera_distance = orbit_camera
+            .camera_distance
+            .clamp(CAMERA_DISTANCE_MIN, CAMERA_DISTANCE_MAX);
     }
+
+    // Recalculate the camera position
+    transform.translation = orbit_camera.get_position();
+
+    // Always look at the world origin
+    transform.look_at(Vec3::ZERO, Vec3::Y);
 }
 
 pub(crate) fn orbit_camera(
     mouse_motion: Res<AccumulatedMouseMotion>,
     mouse_scroll: Res<AccumulatedMouseScroll>,
     buttons: Res<ButtonInput<MouseButton>>,
-    mut cameras: Query<(&mut Transform, &mut OrbitCamera), Without<Lighting>>,
+    mut camera: Single<(&mut Transform, &mut OrbitCamera), Without<Lighting>>,
     mut lightings: Query<(&mut Transform, &Lighting), Without<OrbitCamera>>,
 ) {
-    zoom_camera(&mouse_scroll, &mut cameras);
-    rotate_camera(&mouse_motion, &buttons, &mut cameras, &mut lightings);
+    zoom_camera(&mouse_scroll, &mut camera);
+    rotate_camera(&mouse_motion, &buttons, &mut camera, &mut lightings);
 }
