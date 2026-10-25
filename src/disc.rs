@@ -11,12 +11,13 @@ use bevy_fontmesh::prelude::*;
 use single_disc::SingleDisc;
 use visualization::{COLOR_NOT_SELECTED, COLOR_SELECTED};
 
+use crate::disc::single_disc::DISC_THICKNESS;
+
 pub(crate) fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut all_discs: ResMut<AllDiscs>,
-    asset_server: Res<AssetServer>,
 ) {
     let discs_definition = [
         SingleDisc::init_gear(4.),
@@ -65,7 +66,7 @@ pub(crate) fn setup(
                 ..default()
             })),
             Transform {
-                translation: Vec3::new(0.0, 0.58, 0.0),
+                translation: Vec3::new(0.0, DISC_THICKNESS / 2. + 0.08, 0.0),
                 rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
                 scale: Vec3::splat(1.),
             },
@@ -74,7 +75,7 @@ pub(crate) fn setup(
 
         entities.push(entity);
 
-        height_offset -= 1.1;
+        height_offset -= DISC_THICKNESS + 0.1;
     }
 
     all_discs.reset_with(entities);

@@ -1,8 +1,8 @@
+use crate::disc::single_disc::DISC_THICKNESS;
+use crate::disc::single_disc::RING_HEIGHT;
 use bevy::prelude::*;
 
-const GEAR_THICKNES: f32 = 1.;
 const TEETH_COUNT: u8 = 8;
-const TEETH_HEIGHT: f32 = 1.;
 const ROTATION_STEP: f32 = std::f32::consts::PI / TEETH_COUNT as f32;
 
 #[derive(Clone, Component)]
@@ -21,11 +21,11 @@ impl Gear {
 
     // Combines a regular polygon representing the inner part of gear and adding TEETH_COUNT teeth
     // around it
-    pub(crate) fn generate_gear_mesh(&self) -> Mesh {
+    pub(crate) fn generate_mesh(&self) -> Mesh {
         // initialize with base
         let inner_gear_extrusion = Extrusion::new(
-            RegularPolygon::new(self.radius_outer - TEETH_HEIGHT, (2 * TEETH_COUNT) as u32),
-            GEAR_THICKNES,
+            RegularPolygon::new(self.radius_outer - RING_HEIGHT, (2 * TEETH_COUNT) as u32),
+            DISC_THICKNESS,
         );
         let mut gear = Mesh::from(inner_gear_extrusion);
 
@@ -70,8 +70,8 @@ fn generate_tooth_extrusion(radius_outer: f32, rotational_offset: f32) -> Mesh {
     let mut points = Vec::new();
 
     // point A
-    let x = (radius_outer - TEETH_HEIGHT) * rotational_offset.sin();
-    let y = (radius_outer - TEETH_HEIGHT) * rotational_offset.cos();
+    let x = (radius_outer - RING_HEIGHT) * rotational_offset.sin();
+    let y = (radius_outer - RING_HEIGHT) * rotational_offset.cos();
     points.push(Vec2::new(x, y));
 
     // point B
@@ -85,13 +85,13 @@ fn generate_tooth_extrusion(radius_outer: f32, rotational_offset: f32) -> Mesh {
     points.push(Vec2::new(x, y));
 
     // point D
-    let x = (radius_outer - TEETH_HEIGHT) * rotation_end.sin();
-    let y = (radius_outer - TEETH_HEIGHT) * rotation_end.cos();
+    let x = (radius_outer - RING_HEIGHT) * rotation_end.sin();
+    let y = (radius_outer - RING_HEIGHT) * rotation_end.cos();
     points.push(Vec2::new(x, y));
 
     // extrude and mesh
     let shape = ConvexPolygon::new(points).expect("Polygon must be convex");
-    let extrusion = Extrusion::new(shape, GEAR_THICKNES);
+    let extrusion = Extrusion::new(shape, DISC_THICKNESS);
 
     Mesh::from(extrusion)
 }

@@ -2,6 +2,9 @@ use super::full_disc::FullDisc;
 use super::gear::Gear;
 use bevy::prelude::*;
 
+pub(crate) const DISC_THICKNESS: f32 = 0.5;
+pub(crate) const RING_HEIGHT: f32 = 1.;
+
 #[derive(Clone)]
 enum Disc {
     Gear(Gear),
@@ -35,10 +38,8 @@ impl SingleDisc {
 
     pub(crate) fn generate_mesh(&self) -> Mesh {
         match &self.disc {
-            Disc::Gear(gear) => gear.generate_gear_mesh(),
-            Disc::FullDisc(full_disc) => {
-                Mesh::from(Extrusion::new(Circle::new(full_disc.get_radius()), 1.))
-            }
+            Disc::Gear(gear) => gear.generate_mesh(),
+            Disc::FullDisc(full_disc) => full_disc.generate_mesh(),
         }
         .rotated_by(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2))
     }
