@@ -6,7 +6,7 @@ pub(crate) const TARGET_CAMERA_VIEW: Vec3 = Vec3::ZERO;
 const SENSITIVITY_ROTATION: f32 = 0.005;
 const SENSITIVITY_ZOOM: f32 = 0.02;
 const CAMERA_DISTANCE_MIN: f32 = 10.;
-const CAMERA_DISTANCE_MAX: f32 = 50.;
+const CAMERA_DISTANCE_MAX: f32 = 35.;
 
 pub(crate) fn setup(mut commands: Commands) {
     let orbit_camera = OrbitCamera::init();
@@ -30,8 +30,8 @@ impl OrbitCamera {
     pub(crate) fn init() -> Self {
         Self {
             yaw: 0.7,
-            pitch: 0.45,
-            camera_distance: CAMERA_DISTANCE_MAX,
+            pitch: 0.85,
+            camera_distance: 0.75 * CAMERA_DISTANCE_MAX,
         }
     }
 
