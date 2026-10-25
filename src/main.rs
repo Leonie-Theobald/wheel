@@ -1,6 +1,6 @@
 mod camera;
 mod disc;
-mod world;
+mod lighting;
 
 use crate::disc::all_discs::AllDiscs;
 use bevy::prelude::*;
@@ -11,7 +11,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(FontMeshPlugin::<StandardMaterial>::default())
         .init_resource::<AllDiscs>()
-        .add_systems(Startup, (world::setup, camera::setup, disc::setup))
+        .add_systems(Startup, (lighting::setup, camera::setup, disc::setup))
         .add_systems(Update, camera::orbit_camera)
         .add_systems(
             Update,

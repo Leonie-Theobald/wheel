@@ -1,4 +1,4 @@
-use crate::world::Lighting;
+use crate::lighting::Lighting;
 use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
 use bevy::prelude::*;
 
