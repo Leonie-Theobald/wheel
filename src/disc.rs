@@ -19,9 +19,17 @@ pub(crate) fn setup(
     mut all_discs: ResMut<AllDiscs>,
 ) {
     let discs_definition = [
-        SingleDisc::init_gear(4.),
-        SingleDisc::init_gear(5.),
-        SingleDisc::init_gear(6.),
+        SingleDisc::init_gear(4., [1, 2, 3, 4, 5, 6, 7, 8], None),
+        SingleDisc::init_gear(
+            5.,
+            [3, 4, 5, 6, 7, 8, 9, 10],
+            Some([12, 13, 14, 15, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]),
+        ),
+        SingleDisc::init_gear(
+            6.,
+            [2, 8, 2, 4, 6, 0, 23, 19],
+            Some([5, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1]),
+        ),
         SingleDisc::init_full_disc(
             7.,
             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],

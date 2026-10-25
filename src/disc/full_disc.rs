@@ -1,4 +1,4 @@
-use crate::disc::single_disc::{COUNT_NUMBERS, DISC_THICKNESS, RING_HEIGHT, ROTATION_STEP};
+use crate::disc::single_disc::{COUNT_NUMBERS, DISC_THICKNESS};
 use bevy::prelude::*;
 
 #[derive(Clone)]
@@ -21,39 +21,12 @@ impl FullDisc {
         self.radius
     }
 
-    pub(crate) fn get_numbers_and_positions(&self) -> Vec<(u8, Vec3, Quat)> {
-        let mut numbers_and_positions = Vec::new();
+    pub(crate) fn get_outer_numbers(&self) -> [Option<u8>; 16] {
+        self.outer_numbers.map(Some)
+    }
 
-        let mut rotational_offset = ROTATION_STEP / 2.0;
-        let outer_radius = self.radius - 0.5 * RING_HEIGHT;
-        let inner_radius = self.radius - 1.5 * RING_HEIGHT;
-
-        for (outer_number, inner_number) in self.outer_numbers.into_iter().zip(self.inner_numbers) {
-            // adjust orientation of number to face disc center
-            let rotation = Quat::from_rotation_y(rotational_offset);
-
-            let outer_vertical_offset = outer_radius * rotational_offset.sin();
-            let outer_horizontal_offset = outer_radius * rotational_offset.cos();
-            let outer_translation = Vec3::new(
-                outer_vertical_offset,
-                DISC_THICKNESS / 2. + 0.08,
-                outer_horizontal_offset,
-            );
-            numbers_and_positions.push((outer_number, outer_translation, rotation));
-
-            let inner_vertical_offset = inner_radius * rotational_offset.sin();
-            let inner_horizontal_offset = inner_radius * rotational_offset.cos();
-            let inner_translation = Vec3::new(
-                inner_vertical_offset,
-                DISC_THICKNESS / 2. + 0.08,
-                inner_horizontal_offset,
-            );
-            numbers_and_positions.push((inner_number, inner_translation, rotation));
-
-            rotational_offset += ROTATION_STEP;
-        }
-
-        numbers_and_positions
+    pub(crate) fn get_inner_numbers(&self) -> [Option<u8>; 16] {
+        self.inner_numbers.map(Some)
     }
 
     pub(crate) fn generate_full_disc_mesh(&self) -> Mesh {

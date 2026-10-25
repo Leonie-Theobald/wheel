@@ -7,19 +7,52 @@ use bevy::prelude::*;
 #[derive(Clone, Component)]
 pub(crate) struct Gear {
     radius_outer: f32,
+    outer_numbers: [u8; 8],
+    inner_numbers: Option<[u8; 16]>,
 }
 
 impl Gear {
-    pub(crate) fn init(radius_outer: f32) -> Self {
-        Self { radius_outer }
+    pub(crate) fn init(
+        radius_outer: f32,
+        outer_numbers: [u8; 8],
+        inner_numbers: Option<[u8; 16]>,
+    ) -> Self {
+        Self {
+            radius_outer,
+            outer_numbers,
+            inner_numbers,
+        }
     }
 
-    pub(crate) fn get_radius_inner(&self) -> f32 {
+    pub(crate) fn get_radius(&self) -> f32 {
         self.radius_outer
     }
 
-    pub(crate) fn get_numbers_and_positions(&self) -> Vec<(u8, Vec3, Quat)> {
-        Vec::new()
+    pub(crate) fn get_outer_numbers(&self) -> [Option<u8>; 16] {
+        [
+            Some(self.outer_numbers[0]),
+            None,
+            Some(self.outer_numbers[1]),
+            None,
+            Some(self.outer_numbers[2]),
+            None,
+            Some(self.outer_numbers[3]),
+            None,
+            Some(self.outer_numbers[4]),
+            None,
+            Some(self.outer_numbers[5]),
+            None,
+            Some(self.outer_numbers[6]),
+            None,
+            Some(self.outer_numbers[7]),
+            None,
+        ]
+    }
+
+    pub(crate) fn get_inner_numbers(&self) -> [Option<u8>; 16] {
+        self.inner_numbers
+            .map(|numbers| numbers.map(Some))
+            .unwrap_or([None; 16])
     }
 
     // Combines a regular polygon representing the inner part of gear and adding COUNT_NUMBERS teeth

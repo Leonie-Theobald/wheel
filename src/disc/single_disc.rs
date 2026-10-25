@@ -21,8 +21,12 @@ pub(crate) struct SingleDisc {
 }
 
 impl SingleDisc {
-    pub(crate) fn init_gear(radius: f32) -> Self {
-        let gear = Gear::init(radius);
+    pub(crate) fn init_gear(
+        radius: f32,
+        outer_numbers: [u8; 8],
+        inner_numbers: Option<[u8; 16]>,
+    ) -> Self {
+        let gear = Gear::init(radius, outer_numbers, inner_numbers);
 
         Self {
             disc: Disc::Gear(gear),
@@ -64,7 +68,46 @@ impl SingleDisc {
             ))
             .id();
 
-        for (number, translation, rotation) in self.get_numbers_and_position() {
+        // Get numbers and their positions
+        let mut numbers_and_positions = Vec::new();
+
+        let mut rotational_offset = ROTATION_STEP / 2.0;
+        let outer_radius = self.get_radius() - 0.5 * RING_HEIGHT;
+        let inner_radius = self.get_radius() - 1.5 * RING_HEIGHT;
+
+        for (outer_number, inner_number) in self
+            .get_outer_numbers()
+            .into_iter()
+            .zip(self.get_inner_numbers())
+        {
+            // adjust orientation of number to face disc center
+            let rotation = Quat::from_rotation_y(rotational_offset);
+
+            if let Some(outer_number) = outer_number {
+                let outer_horizontal_offset = outer_radius * rotational_offset.sin();
+                let outer_vertical_offset = outer_radius * rotational_offset.cos();
+                let outer_translation = Vec3::new(
+                    outer_horizontal_offset,
+                    DISC_THICKNESS / 2. + 0.08,
+                    outer_vertical_offset,
+                );
+                numbers_and_positions.push((outer_number, outer_translation, rotation));
+            }
+
+            if let Some(inner_number) = inner_number {
+                let inner_horizontal_offset = inner_radius * rotational_offset.sin();
+                let inner_vertical_offset = inner_radius * rotational_offset.cos();
+                let inner_translation = Vec3::new(
+                    inner_horizontal_offset,
+                    DISC_THICKNESS / 2. + 0.08,
+                    inner_vertical_offset,
+                );
+                numbers_and_positions.push((inner_number, inner_translation, rotation));
+            }
+
+            rotational_offset += ROTATION_STEP;
+        }
+        for (number, translation, rotation) in numbers_and_positions {
             // Spawn writing on disc
             commands.spawn((
                 TextMesh {
@@ -100,26 +143,27 @@ impl SingleDisc {
             Disc::Gear(gear) => gear.generate_gear_mesh(),
             Disc::FullDisc(full_disc) => full_disc.generate_full_disc_mesh(),
         }
-        .rotated_by(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2))
-    }
-
-    // fn generate_numbers_meshes(&self) -> Vec<TextMesh> {
-    //     match &self.disc {
-    //         Disc::Gear(gear) => gear.generate_numbers_meshes(),
-    //         Disc::FullDisc(full_disc) => full_disc.generate_numbers_meshes(),
-    //     }
-    // }
-    fn get_numbers_and_position(&self) -> Vec<(u8, Vec3, Quat)> {
-        match &self.disc {
-            Disc::Gear(gear) => gear.get_numbers_and_positions(),
-            Disc::FullDisc(full_disc) => full_disc.get_numbers_and_positions(),
-        }
+        .rotated_by(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
     }
 
     pub(crate) fn get_radius(&self) -> f32 {
         match &self.disc {
-            Disc::Gear(gear) => gear.get_radius_inner(),
+            Disc::Gear(gear) => gear.get_radius(),
             Disc::FullDisc(full_disc) => full_disc.get_radius(),
+        }
+    }
+
+    fn get_outer_numbers(&self) -> [Option<u8>; 16] {
+        match self.disc {
+            Disc::Gear(ref gear) => gear.get_outer_numbers(),
+            Disc::FullDisc(ref full_disc) => full_disc.get_outer_numbers(),
+        }
+    }
+
+    fn get_inner_numbers(&self) -> [Option<u8>; 16] {
+        match self.disc {
+            Disc::Gear(ref gear) => gear.get_inner_numbers(),
+            Disc::FullDisc(ref full_disc) => full_disc.get_inner_numbers(),
         }
     }
 
