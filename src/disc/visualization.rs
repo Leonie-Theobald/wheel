@@ -2,8 +2,8 @@ use super::all_discs::AllDiscs;
 use super::single_disc::SingleDisc;
 use bevy::prelude::*;
 
-pub(crate) const COLOR_SELECTED: Color = Color::srgb(0.95, 0.35, 0.1);
-pub(crate) const COLOR_NOT_SELECTED: Color = Color::srgb(0.2, 0.6, 0.9);
+pub(crate) const COLOR_SELECTED: Color = Color::srgb(0.02, 0.08, 0.25);
+pub(crate) const COLOR_NOT_SELECTED: Color = Color::srgb(0.0, 0.4, 1.0);
 
 pub(crate) fn color_discs(
     discs: ResMut<AllDiscs>,
