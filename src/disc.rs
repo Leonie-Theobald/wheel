@@ -7,7 +7,6 @@ pub(crate) mod visualization;
 
 use all_discs::AllDiscs;
 use bevy::prelude::*;
-use bevy_fontmesh::prelude::*;
 use single_disc::SingleDisc;
 use visualization::{COLOR_NOT_SELECTED, COLOR_SELECTED};
 
@@ -23,7 +22,11 @@ pub(crate) fn setup(
         SingleDisc::init_gear(4.),
         SingleDisc::init_gear(5.),
         SingleDisc::init_gear(6.),
-        SingleDisc::init_full_disc(7.),
+        SingleDisc::init_full_disc(
+            7.,
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            [10, 11, 12, 13, 14, 15, 16, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ),
     ];
 
     // go through discs
@@ -36,43 +39,13 @@ pub(crate) fn setup(
             COLOR_NOT_SELECTED
         };
         // spawn disc
-        let entity = commands
-            .spawn((
-                disc.clone(),
-                Mesh3d(meshes.add(disc.generate_mesh())),
-                MeshMaterial3d(materials.add(StandardMaterial {
-                    cull_mode: None,
-                    base_color: color,
-                    ..default()
-                })),
-                Transform::from_xyz(0., height_offset, 0.0),
-            ))
-            .id();
-
-        // Spawn writing on disc
-        commands.spawn((
-            TextMesh {
-                text: "HELLO DISC".to_string(),
-                style: TextMeshStyle {
-                    depth: 0.08,
-                    anchor: TextAnchor::Center,
-                    justify: JustifyText::Center,
-                    ..default()
-                },
-                ..default()
-            },
-            MeshMaterial3d(materials.add(StandardMaterial {
-                base_color: Color::BLACK,
-                ..default()
-            })),
-            Transform {
-                translation: Vec3::new(0.0, DISC_THICKNESS / 2. + 0.08, 0.0),
-                rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
-                scale: Vec3::splat(1.),
-            },
-            ChildOf(entity),
-        ));
-
+        let entity = disc.spawn(
+            color,
+            height_offset,
+            &mut commands,
+            &mut meshes,
+            &mut materials,
+        );
         entities.push(entity);
 
         height_offset -= DISC_THICKNESS + 0.1;

@@ -1,9 +1,8 @@
+use crate::disc::single_disc::COUNT_NUMBERS;
 use crate::disc::single_disc::DISC_THICKNESS;
 use crate::disc::single_disc::RING_HEIGHT;
+use crate::disc::single_disc::ROTATION_STEP;
 use bevy::prelude::*;
-
-const TEETH_COUNT: u8 = 8;
-const ROTATION_STEP: f32 = std::f32::consts::PI / TEETH_COUNT as f32;
 
 #[derive(Clone, Component)]
 pub(crate) struct Gear {
@@ -19,79 +18,84 @@ impl Gear {
         self.radius_outer
     }
 
-    // Combines a regular polygon representing the inner part of gear and adding TEETH_COUNT teeth
+    pub(crate) fn get_numbers_and_positions(&self) -> Vec<(u8, Vec3, Quat)> {
+        Vec::new()
+    }
+
+    // Combines a regular polygon representing the inner part of gear and adding COUNT_NUMBERS teeth
     // around it
-    pub(crate) fn generate_mesh(&self) -> Mesh {
+    pub(crate) fn generate_gear_mesh(&self) -> Mesh {
         // initialize with base
         let inner_gear_extrusion = Extrusion::new(
-            RegularPolygon::new(self.radius_outer - RING_HEIGHT, (2 * TEETH_COUNT) as u32),
+            RegularPolygon::new(self.radius_outer - RING_HEIGHT, COUNT_NUMBERS as u32),
             DISC_THICKNESS,
         );
         let mut gear = Mesh::from(inner_gear_extrusion);
 
         // add tooth extrusions
         let mut rotational_offset = 0.;
-        for _ in 0..TEETH_COUNT {
-            let tooth_extrusion = generate_tooth_extrusion(self.radius_outer, rotational_offset);
+        let count_teeth = COUNT_NUMBERS / 2;
+        for _ in 0..count_teeth {
+            let tooth_extrusion = self.generate_tooth_extrusion(rotational_offset);
             gear.merge(&tooth_extrusion)
                 .expect("Tooth should be possible to merge to gear mesh");
 
-            rotational_offset += 2. * ROTATION_STEP; // steps for one tooth and one valley
+            rotational_offset += 2. * ROTATION_STEP;
         }
 
         gear
     }
-}
 
-// Function draws four points (A, B, C, D) which when connected form one tooth
-// It considers the rotational_offset, e.g. PI would be an offset of half a circle, placing the
-// tooth on opposite side
-//
-// Simplified visualization excluding curvature
-//
-//                B___C         _
-//                |   |          |
-//                |   |          | TEETH_HEIGHT
-//         _   ___|   |___      _|
-//         |      A   D
-//         |
-//         |      ^   ^
-//         |      |   |
-//         |      |   |
-// radius_inner   |   |
-//         |      |   rotation_end
-//         |      |
-//         |      rotational_offset
-//         |
-//         |_     x  Center of gear
-fn generate_tooth_extrusion(radius_outer: f32, rotational_offset: f32) -> Mesh {
-    // generate 2D outline
-    let rotation_end = rotational_offset + ROTATION_STEP;
-    let mut points = Vec::new();
+    // Function draws four points (A, B, C, D) which when connected form one tooth
+    // It considers the rotational_offset, e.g. PI would be an offset of half a circle, placing the
+    // tooth on opposite side
+    //
+    // Simplified visualization excluding curvature
+    //
+    //                B___C         _
+    //                |   |          |
+    //                |   |          | TEETH_HEIGHT
+    //         _   ___|   |___      _|
+    //         |      A   D
+    //         |
+    //         |      ^   ^
+    //         |      |   |
+    //         |      |   |
+    // radius_inner   |   |
+    //         |      |   rotation_end
+    //         |      |
+    //         |      rotational_offset
+    //         |
+    //         |_     x  Center of gear
+    fn generate_tooth_extrusion(&self, rotational_offset: f32) -> Mesh {
+        // generate 2D outline
+        let rotation_end = rotational_offset + ROTATION_STEP;
+        let mut points = Vec::new();
 
-    // point A
-    let x = (radius_outer - RING_HEIGHT) * rotational_offset.sin();
-    let y = (radius_outer - RING_HEIGHT) * rotational_offset.cos();
-    points.push(Vec2::new(x, y));
+        // point A
+        let x = (self.radius_outer - RING_HEIGHT) * rotational_offset.sin();
+        let y = (self.radius_outer - RING_HEIGHT) * rotational_offset.cos();
+        points.push(Vec2::new(x, y));
 
-    // point B
-    let x = radius_outer * rotational_offset.sin();
-    let y = radius_outer * rotational_offset.cos();
-    points.push(Vec2::new(x, y));
+        // point B
+        let x = self.radius_outer * rotational_offset.sin();
+        let y = self.radius_outer * rotational_offset.cos();
+        points.push(Vec2::new(x, y));
 
-    // point C
-    let x = radius_outer * rotation_end.sin();
-    let y = radius_outer * rotation_end.cos();
-    points.push(Vec2::new(x, y));
+        // point C
+        let x = self.radius_outer * rotation_end.sin();
+        let y = self.radius_outer * rotation_end.cos();
+        points.push(Vec2::new(x, y));
 
-    // point D
-    let x = (radius_outer - RING_HEIGHT) * rotation_end.sin();
-    let y = (radius_outer - RING_HEIGHT) * rotation_end.cos();
-    points.push(Vec2::new(x, y));
+        // point D
+        let x = (self.radius_outer - RING_HEIGHT) * rotation_end.sin();
+        let y = (self.radius_outer - RING_HEIGHT) * rotation_end.cos();
+        points.push(Vec2::new(x, y));
 
-    // extrude and mesh
-    let shape = ConvexPolygon::new(points).expect("Polygon must be convex");
-    let extrusion = Extrusion::new(shape, DISC_THICKNESS);
+        // extrude and mesh
+        let shape = ConvexPolygon::new(points).expect("Polygon must be convex");
+        let extrusion = Extrusion::new(shape, DISC_THICKNESS);
 
-    Mesh::from(extrusion)
+        Mesh::from(extrusion)
+    }
 }
