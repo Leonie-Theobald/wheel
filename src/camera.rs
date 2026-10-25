@@ -65,7 +65,10 @@ fn rotate_camera(
     orbit_camera.pitch += delta.y * SENSITIVITY_ROTATION;
 
     // Prevent flipping over the poles
-    orbit_camera.pitch = orbit_camera.pitch.clamp(-1.5, 1.5);
+    orbit_camera.pitch = orbit_camera.pitch.clamp(
+        -std::f32::consts::FRAC_PI_2 + 0.01,
+        std::f32::consts::FRAC_PI_2 - 0.01,
+    );
 
     let camera_position = orbit_camera.get_position();
     camera_transform.translation = camera_position;
