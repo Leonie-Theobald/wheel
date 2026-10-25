@@ -7,6 +7,7 @@ pub(crate) mod visualization;
 
 use all_discs::AllDiscs;
 use bevy::prelude::*;
+use bevy_fontmesh::prelude::*;
 use single_disc::SingleDisc;
 use visualization::{COLOR_NOT_SELECTED, COLOR_SELECTED};
 
@@ -47,18 +48,27 @@ pub(crate) fn setup(
             ))
             .id();
 
-        // spawn text with numbers
+        // Spawn writing on disc
         commands.spawn((
-            Mesh3d(meshes.add(Circle::new(disc.get_radius()))),
+            TextMesh {
+                text: "HELLO DISC".to_string(),
+                style: TextMeshStyle {
+                    depth: 0.08,
+                    anchor: TextAnchor::Center,
+                    justify: JustifyText::Center,
+                    ..default()
+                },
+                ..default()
+            },
             MeshMaterial3d(materials.add(StandardMaterial {
-                cull_mode: None,
-                base_color: Color::srgba(1.0, 1.0, 1.0, 0.0),
-                base_color_texture: Some(asset_server.load(format!("disc_{}.png", index + 1))),
-                alpha_mode: AlphaMode::Blend,
+                base_color: Color::BLACK,
                 ..default()
             })),
-            Transform::from_xyz(0., 0.501, 0.)
-                .with_rotation(Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2)),
+            Transform {
+                translation: Vec3::new(0.0, 0.58, 0.0),
+                rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
+                scale: Vec3::splat(1.),
+            },
             ChildOf(entity),
         ));
 
