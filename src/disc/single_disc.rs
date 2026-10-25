@@ -55,6 +55,7 @@ impl SingleDisc {
         meshes: &mut ResMut<Assets<Mesh>>,
         materials: &mut ResMut<Assets<StandardMaterial>>,
     ) -> Entity {
+        // spawn disc (full disc or gear)
         let entity = commands
             .spawn((
                 self.clone(),
@@ -70,7 +71,6 @@ impl SingleDisc {
 
         // Get numbers and their positions
         let mut numbers_and_positions = Vec::new();
-
         let mut rotational_offset = ROTATION_STEP / 2.0;
         let outer_radius = self.get_radius() - 0.5 * RING_HEIGHT;
         let inner_radius = self.get_radius() - 1.5 * RING_HEIGHT;
@@ -83,32 +83,23 @@ impl SingleDisc {
             // adjust orientation of number to face disc center
             let rotation = Quat::from_rotation_y(rotational_offset);
 
-            if let Some(outer_number) = outer_number {
-                let outer_horizontal_offset = outer_radius * rotational_offset.sin();
-                let outer_vertical_offset = outer_radius * rotational_offset.cos();
-                let outer_translation = Vec3::new(
-                    outer_horizontal_offset,
-                    DISC_THICKNESS / 2. + 0.08,
-                    outer_vertical_offset,
-                );
-                numbers_and_positions.push((outer_number, outer_translation, rotation));
-            }
+            for (number, radius) in [(outer_number, outer_radius), (inner_number, inner_radius)] {
+                if let Some(number) = number {
+                    let translation = Vec3::new(
+                        radius * rotational_offset.sin(),
+                        DISC_THICKNESS / 2.0 + 0.04,
+                        radius * rotational_offset.cos(),
+                    );
 
-            if let Some(inner_number) = inner_number {
-                let inner_horizontal_offset = inner_radius * rotational_offset.sin();
-                let inner_vertical_offset = inner_radius * rotational_offset.cos();
-                let inner_translation = Vec3::new(
-                    inner_horizontal_offset,
-                    DISC_THICKNESS / 2. + 0.08,
-                    inner_vertical_offset,
-                );
-                numbers_and_positions.push((inner_number, inner_translation, rotation));
+                    numbers_and_positions.push((number, translation, rotation));
+                }
             }
 
             rotational_offset += ROTATION_STEP;
         }
+
+        // spawn the numbers
         for (number, translation, rotation) in numbers_and_positions {
-            // Spawn writing on disc
             commands.spawn((
                 TextMesh {
                     text: number.to_string(),
@@ -125,11 +116,9 @@ impl SingleDisc {
                     ..default()
                 })),
                 Transform {
-                    // translation: Vec3::new(0.0, DISC_THICKNESS / 2. + 0.08, 0.0),
                     translation,
-                    // rotation: Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
                     rotation: rotation * Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
-                    scale: Vec3::splat(1.),
+                    scale: Vec3::splat(0.8),
                 },
                 ChildOf(entity),
             ));
