@@ -158,6 +158,10 @@ impl SingleDisc {
         }
     }
 
+    pub(crate) fn get_discrete_rotation(&self) -> usize {
+        self.discrete_rotation
+    }
+
     pub(crate) fn get_rotation_angle(&self) -> f32 {
         self.discrete_rotation as f32 * std::f32::consts::TAU / COUNT_NUMBERS as f32
     }

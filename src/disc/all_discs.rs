@@ -1,3 +1,4 @@
+use crate::disc::single_disc::{SingleDisc, COUNT_NUMBERS};
 use bevy::prelude::*;
 
 #[derive(Default)]
@@ -28,6 +29,10 @@ impl AllDiscs {
             SelectedDisc::LowerMiddle => self.entities[2],
             SelectedDisc::Bottom => self.entities[3],
         }
+    }
+
+    pub(crate) fn get_bottom_disc_entity(&self) -> Entity {
+        self.entities[3]
     }
 
     /// The discs are vertically stacked \
@@ -68,5 +73,134 @@ impl AllDiscs {
                 self.selected_disc = SelectedDisc::Top;
             }
         };
+    }
+
+    pub(crate) fn get_visible_numbers(
+        &self,
+        disc_list: &Query<&mut SingleDisc>,
+    ) -> [[usize; COUNT_NUMBERS]; 4] {
+        // discs
+        let top_disc = disc_list
+            .get(self.entities[0])
+            .expect("Resource should hold valid entities");
+        let upper_middle_disc = disc_list
+            .get(self.entities[1])
+            .expect("Resource should hold valid entities");
+        let lower_middle_disc = disc_list
+            .get(self.entities[2])
+            .expect("Resource should hold valid entities");
+        let bottom_disc = disc_list
+            .get(self.entities[3])
+            .expect("Resource should hold valid entities");
+
+        // rotations
+        let bottom_disc_rotation = bottom_disc.get_discrete_rotation();
+        let lower_middle_disc_rotation = lower_middle_disc.get_discrete_rotation();
+        let upper_middle_disc_rotation = upper_middle_disc.get_discrete_rotation();
+        let top_disc_rotation = top_disc.get_discrete_rotation();
+
+        // outer ring
+        let mut outer_ring = bottom_disc.get_outer_numbers().map(Option::unwrap);
+        outer_ring.rotate_right(bottom_disc_rotation);
+
+        // next to outer ring
+        let mut complete_ring = bottom_disc
+            .get_inner_numbers()
+            .expect("Bottom disc has inner numbers");
+        complete_ring.rotate_right(bottom_disc_rotation);
+        let mut gear_ring = lower_middle_disc.get_outer_numbers();
+        gear_ring.rotate_right(lower_middle_disc_rotation);
+        let next_to_outer_ring = overlay_complete_ring_with_gear_ring(&complete_ring, &gear_ring);
+
+        // next to inner ring
+        let mut complete_ring = lower_middle_disc
+            .get_inner_numbers()
+            .expect("Lower middle disc has inner numbers");
+        complete_ring.rotate_right(lower_middle_disc_rotation);
+        let mut gear_ring = upper_middle_disc.get_outer_numbers();
+        gear_ring.rotate_right(upper_middle_disc_rotation);
+        let next_to_inner_ring = overlay_complete_ring_with_gear_ring(&complete_ring, &gear_ring);
+
+        // inner ring
+        let mut complete_ring = upper_middle_disc
+            .get_inner_numbers()
+            .expect("Upper middle disc has inner numbers");
+        complete_ring.rotate_right(upper_middle_disc_rotation);
+        let mut gear_ring = top_disc.get_outer_numbers();
+        gear_ring.rotate_right(top_disc_rotation);
+        let inner_ring = overlay_complete_ring_with_gear_ring(&complete_ring, &gear_ring);
+
+        [
+            outer_ring,
+            next_to_outer_ring,
+            next_to_inner_ring,
+            inner_ring,
+        ]
+    }
+}
+
+fn overlay_complete_ring_with_gear_ring(
+    complete_ring: &[usize; COUNT_NUMBERS],
+    gear_ring: &[Option<usize>; COUNT_NUMBERS],
+) -> [usize; COUNT_NUMBERS] {
+    complete_ring
+        .clone()
+        .iter_mut()
+        .zip(gear_ring.iter())
+        .map(|(dst, src)| src.unwrap_or(*dst))
+        .collect::<Vec<_>>()
+        .try_into()
+        .expect("Size is correct")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn overlay_ring() {
+        let ring = [Some(8); 16];
+        let other_ring = [
+            None,
+            Some(1),
+            None,
+            Some(1),
+            None,
+            Some(1),
+            None,
+            Some(1),
+            None,
+            Some(1),
+            None,
+            Some(1),
+            None,
+            Some(1),
+            None,
+            Some(1),
+        ];
+
+        let result = [
+            Some(8),
+            Some(1),
+            Some(8),
+            Some(1),
+            Some(8),
+            Some(1),
+            Some(8),
+            Some(1),
+            Some(8),
+            Some(1),
+            Some(8),
+            Some(1),
+            Some(8),
+            Some(1),
+            Some(8),
+            Some(1),
+        ];
+
+        assert_eq!(
+            result,
+            overlay_complete_ring_with_gear_ring(&ring, &other_ring)
+        );
     }
 }

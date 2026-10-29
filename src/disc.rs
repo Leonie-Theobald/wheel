@@ -2,7 +2,7 @@ pub(crate) mod all_discs;
 mod full_disc;
 mod gear;
 pub(crate) mod modification;
-mod single_disc;
+pub(crate) mod single_disc;
 pub(crate) mod visualization;
 
 use all_discs::AllDiscs;

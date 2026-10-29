@@ -1,6 +1,8 @@
 use super::all_discs::AllDiscs;
 use super::single_disc::SingleDisc;
+use crate::sum::{AllSums, SumMaterial, SumNumber};
 use bevy::prelude::*;
+use bevy_fontmesh::TextMesh;
 
 pub(crate) const COLOR_SELECTED: Color = Color::srgb(0.02, 0.08, 0.25);
 pub(crate) const COLOR_NOT_SELECTED: Color = Color::srgb(0.0, 0.4, 1.0);
@@ -31,5 +33,28 @@ pub(crate) fn rotate_discs(
 ) {
     for (disc, mut transform) in &mut disc_list {
         transform.rotation = Quat::from_rotation_y(disc.get_rotation_angle());
+    }
+}
+
+pub(crate) fn draw_sums(
+    all_sums: Res<AllSums>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    sum_material: Res<SumMaterial>,
+    mut sum_list: Query<(&SumNumber, &mut TextMesh)>,
+) {
+    if !all_sums.is_changed() {
+        return;
+    }
+
+    let color = if all_sums.sums_equal() {
+        Color::srgb(0., 1., 0.)
+    } else {
+        Color::srgb(1., 0., 0.)
+    };
+
+    materials.get_mut(&sum_material.0).unwrap().base_color = color;
+
+    for (sum, mut text_mesh) in &mut sum_list {
+        text_mesh.text = all_sums.get_sums()[sum.get_index()].to_string();
     }
 }
