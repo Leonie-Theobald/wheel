@@ -4,12 +4,12 @@ use crate::sum::{AllSums, SumMaterial, SumNumber};
 use bevy::prelude::*;
 use bevy_fontmesh::TextMesh;
 
-pub(crate) const COLOR_SELECTED: Color = Color::srgb(0.02, 0.08, 0.25);
-pub(crate) const COLOR_NOT_SELECTED: Color = Color::srgb(0.0, 0.4, 1.0);
+pub(crate) const COLOR_SELECTED: Color = Color::srgb(0.3, 0.3, 0.3);
+pub(crate) const COLOR_NOT_SELECTED: Color = Color::srgb(0.8, 0.8, 0.8);
 
 pub(crate) fn color_discs(
     discs: ResMut<AllDiscs>,
-    mut disc_list: Query<&MeshMaterial3d<StandardMaterial>>,
+    mut disc_list: Query<&MeshMaterial3d<StandardMaterial>, With<SingleDisc>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // only necessary when the selected disc has changed

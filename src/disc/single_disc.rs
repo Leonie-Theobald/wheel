@@ -113,8 +113,7 @@ impl SingleDisc {
                     ..default()
                 },
                 MeshMaterial3d(materials.add(StandardMaterial {
-                    base_color: Color::srgb(0.01, 0.01, 0.01),
-                    unlit: true,
+                    base_color: Color::BLACK,
                     ..default()
                 })),
                 Transform {
