@@ -17,33 +17,33 @@ enum Disc {
 #[derive(Clone, Component)]
 pub(crate) struct SingleDisc {
     disc: Disc,
-    rotation: u8,
+    discrete_rotation: usize,
 }
 
 impl SingleDisc {
     pub(crate) fn init_gear(
         radius: f32,
-        outer_numbers: [u8; 8],
-        inner_numbers: Option<[u8; 16]>,
+        outer_numbers: [usize; 8],
+        inner_numbers: Option<[usize; COUNT_NUMBERS]>,
     ) -> Self {
         let gear = Gear::init(radius, outer_numbers, inner_numbers);
 
         Self {
             disc: Disc::Gear(gear),
-            rotation: 0,
+            discrete_rotation: 0,
         }
     }
 
     pub(crate) fn init_full_disc(
         radius: f32,
-        outer_numbers: [u8; 16],
-        inner_numbers: [u8; 16],
+        outer_numbers: [usize; COUNT_NUMBERS],
+        inner_numbers: [usize; COUNT_NUMBERS],
     ) -> Self {
         let full_disc = FullDisc::init(radius, outer_numbers, inner_numbers);
 
         Self {
             disc: Disc::FullDisc(full_disc),
-            rotation: 0,
+            discrete_rotation: 0,
         }
     }
 
@@ -75,11 +75,12 @@ impl SingleDisc {
         let outer_radius = self.get_radius() - 0.5 * RING_HEIGHT;
         let inner_radius = self.get_radius() - 1.5 * RING_HEIGHT;
 
-        for (outer_number, inner_number) in self
-            .get_outer_numbers()
-            .into_iter()
-            .zip(self.get_inner_numbers())
-        {
+        let outer_numbers = self.get_outer_numbers();
+        let inner_numbers = match self.get_inner_numbers() {
+            Some(numbers) => numbers.map(Some),
+            None => [None; COUNT_NUMBERS],
+        };
+        for (outer_number, inner_number) in outer_numbers.into_iter().zip(inner_numbers) {
             // adjust orientation of number to face disc center
             let rotation = Quat::from_rotation_y(rotational_offset);
 
@@ -143,14 +144,14 @@ impl SingleDisc {
         }
     }
 
-    fn get_outer_numbers(&self) -> [Option<u8>; 16] {
+    pub(crate) fn get_outer_numbers(&self) -> [Option<usize>; COUNT_NUMBERS] {
         match self.disc {
             Disc::Gear(ref gear) => gear.get_outer_numbers(),
             Disc::FullDisc(ref full_disc) => full_disc.get_outer_numbers(),
         }
     }
 
-    fn get_inner_numbers(&self) -> [Option<u8>; 16] {
+    pub(crate) fn get_inner_numbers(&self) -> Option<[usize; COUNT_NUMBERS]> {
         match self.disc {
             Disc::Gear(ref gear) => gear.get_inner_numbers(),
             Disc::FullDisc(ref full_disc) => full_disc.get_inner_numbers(),
@@ -158,15 +159,15 @@ impl SingleDisc {
     }
 
     pub(crate) fn get_rotation_angle(&self) -> f32 {
-        self.rotation as f32 * std::f32::consts::TAU / 16.0
+        self.discrete_rotation as f32 * std::f32::consts::TAU / COUNT_NUMBERS as f32
     }
 
     pub(crate) fn step_once_clockwise(&mut self) {
-        self.rotation = (self.rotation + 1) % 16;
+        self.discrete_rotation = (self.discrete_rotation + 1) % COUNT_NUMBERS;
     }
 
     pub(crate) fn step_once_counter_clockwise(&mut self) {
         // use +15 instead of -1 to avoid underflow
-        self.rotation = (self.rotation + 15) % 16;
+        self.discrete_rotation = (self.discrete_rotation + 15) % COUNT_NUMBERS;
     }
 }
