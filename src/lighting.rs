@@ -5,12 +5,12 @@ use bevy::prelude::*;
 pub(crate) struct Lighting;
 
 pub(crate) fn setup(mut commands: Commands, mut ambient: ResMut<GlobalAmbientLight>) {
-    ambient.brightness = 600.;
+    ambient.brightness = 300.;
 
     commands.spawn((
         Lighting,
         DirectionalLight {
-            color: Color::srgb(1., 1., 1.),
+            color: Color::WHITE,
             illuminance: 20_000.,
             shadow_maps_enabled: true,
             ..default()
