@@ -1,5 +1,6 @@
 mod camera;
 mod disc;
+mod info;
 mod lighting;
 mod sum;
 
@@ -14,7 +15,14 @@ fn main() {
         .init_resource::<AllSums>()
         .add_systems(
             Startup,
-            (lighting::setup, camera::setup, disc::setup, sum::setup).chain(),
+            (
+                info::setup,
+                lighting::setup,
+                camera::setup,
+                disc::setup,
+                sum::setup,
+            )
+                .chain(),
         )
         // .add_systems(Update, camera::orbit_camera)
         .add_systems(
