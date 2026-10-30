@@ -1,6 +1,7 @@
+use crate::AllDiscs;
 use crate::disc::single_disc::SingleDisc;
 use crate::disc::single_disc::{COUNT_NUMBERS, DISC_THICKNESS, RING_HEIGHT, ROTATION_STEP};
-use crate::AllDiscs;
+use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use bevy_fontmesh::{JustifyText, TextAnchor, TextMesh, TextMeshStyle};
 
@@ -109,6 +110,7 @@ pub(crate) fn setup(
                 rotation: rotation * Quat::from_rotation_x(-std::f32::consts::FRAC_PI_2),
                 scale: Vec3::splat(0.8),
             },
+            NotShadowCaster,
         ));
     }
 }
