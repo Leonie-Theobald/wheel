@@ -12,27 +12,40 @@ pub(crate) enum SelectedDisc {
 
 #[derive(Default, Resource)]
 pub(crate) struct AllDiscs {
-    entities: Vec<Entity>,
+    top_disc: Option<Entity>,
+    upper_middle_disc: Option<Entity>,
+    lower_middle_disc: Option<Entity>,
+    bottom_disc: Option<Entity>,
     selected_disc: SelectedDisc,
 }
 
 impl AllDiscs {
-    pub(crate) fn reset_with(&mut self, entities: Vec<Entity>) {
-        self.entities = entities;
+    pub(crate) fn reset_with(
+        &mut self,
+        top: Entity,
+        upper_middle: Entity,
+        lower_middle: Entity,
+        bottom: Entity,
+    ) {
+        self.top_disc = Some(top);
+        self.upper_middle_disc = Some(upper_middle);
+        self.lower_middle_disc = Some(lower_middle);
+        self.bottom_disc = Some(bottom);
+
         self.selected_disc = SelectedDisc::Top;
     }
 
     pub(crate) fn get_selected_disc_entity(&self) -> Entity {
         match &self.selected_disc {
-            SelectedDisc::Top => self.entities[0],
-            SelectedDisc::UpperMiddle => self.entities[1],
-            SelectedDisc::LowerMiddle => self.entities[2],
-            SelectedDisc::Bottom => self.entities[3],
+            SelectedDisc::Top => self.top_disc.expect("Should be already set"),
+            SelectedDisc::UpperMiddle => self.upper_middle_disc.expect("Should be already set"),
+            SelectedDisc::LowerMiddle => self.lower_middle_disc.expect("Should be already set"),
+            SelectedDisc::Bottom => self.bottom_disc.expect("Should be already set"),
         }
     }
 
     pub(crate) fn get_bottom_disc_entity(&self) -> Entity {
-        self.entities[3]
+        self.bottom_disc.expect("Should be already set")
     }
 
     /// The discs are vertically stacked \
@@ -81,16 +94,16 @@ impl AllDiscs {
     ) -> [[usize; COUNT_NUMBERS]; 4] {
         // discs
         let top_disc = disc_list
-            .get(self.entities[0])
+            .get(self.top_disc.expect("Should be already set"))
             .expect("Resource should hold valid entities");
         let upper_middle_disc = disc_list
-            .get(self.entities[1])
+            .get(self.upper_middle_disc.expect("Should be already set"))
             .expect("Resource should hold valid entities");
         let lower_middle_disc = disc_list
-            .get(self.entities[2])
+            .get(self.lower_middle_disc.expect("Should be already set"))
             .expect("Resource should hold valid entities");
         let bottom_disc = disc_list
-            .get(self.entities[3])
+            .get(self.bottom_disc.expect("Should be already set"))
             .expect("Resource should hold valid entities");
 
         // rotations

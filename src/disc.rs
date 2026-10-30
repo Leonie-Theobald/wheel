@@ -18,29 +18,30 @@ pub(crate) fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut all_discs: ResMut<AllDiscs>,
 ) {
-    let discs_definition = [
-        SingleDisc::init_gear(4., [10, 6, 13, 3, 3, 6, 10, 10], None),
-        SingleDisc::init_gear(
-            5.,
-            [2, 17, 15, 14, 5, 10, 2, 22],
-            Some([6, 10, 4, 1, 5, 5, 4, 8, 6, 3, 1, 6, 10, 6, 10, 2]),
-        ),
-        SingleDisc::init_gear(
-            6.,
-            [2, 10, 15, 6, 9, 16, 17, 2],
-            Some([8, 24, 8, 3, 6, 15, 22, 6, 1, 1, 11, 27, 14, 5, 5, 7]),
-        ),
-        SingleDisc::init_full_disc(
-            7.,
-            [2, 15, 23, 19, 3, 2, 3, 27, 20, 11, 27, 10, 19, 10, 13, 10],
-            [22, 9, 5, 10, 5, 1, 24, 2, 10, 9, 7, 3, 12, 24, 10, 9],
-        ),
-    ];
+    let top_disc = SingleDisc::init_gear(4., [10, 6, 13, 3, 3, 6, 10, 10], None);
+    let upper_middle_disc = SingleDisc::init_gear(
+        5.,
+        [2, 17, 15, 14, 5, 10, 2, 22],
+        Some([6, 10, 4, 1, 5, 5, 4, 8, 6, 3, 1, 6, 10, 6, 10, 2]),
+    );
+    let lower_middle_disc = SingleDisc::init_gear(
+        6.,
+        [2, 10, 15, 6, 9, 16, 17, 2],
+        Some([8, 24, 8, 3, 6, 15, 22, 6, 1, 1, 11, 27, 14, 5, 5, 7]),
+    );
+    let bottom_disc = SingleDisc::init_full_disc(
+        7.,
+        [2, 15, 23, 19, 3, 2, 3, 27, 20, 11, 27, 10, 19, 10, 13, 10],
+        [22, 9, 5, 10, 5, 1, 24, 2, 10, 9, 7, 3, 12, 24, 10, 9],
+    );
 
     // go through discs
     let mut height_offset = 0.0;
     let mut entities = Vec::new();
-    for (index, disc) in discs_definition.iter().enumerate() {
+    for (index, disc) in [top_disc, upper_middle_disc, lower_middle_disc, bottom_disc]
+        .iter()
+        .enumerate()
+    {
         let color = if index == 0 {
             COLOR_SELECTED
         } else {
@@ -59,5 +60,5 @@ pub(crate) fn setup(
         height_offset -= DISC_THICKNESS + 0.1;
     }
 
-    all_discs.reset_with(entities);
+    all_discs.reset_with(entities[0], entities[1], entities[2], entities[3]);
 }
