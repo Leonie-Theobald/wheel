@@ -1,4 +1,4 @@
-use crate::disc::single_disc::{SingleDisc, COUNT_NUMBERS};
+use crate::disc::single_disc::{COUNT_NUMBERS, SingleDisc};
 use bevy::prelude::*;
 
 #[derive(Default)]
@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn overlay_ring() {
-        let ring = [Some(8); 16];
+        let ring = [8; 16];
         let other_ring = [
             None,
             Some(1),
@@ -179,24 +179,7 @@ mod tests {
             Some(1),
         ];
 
-        let result = [
-            Some(8),
-            Some(1),
-            Some(8),
-            Some(1),
-            Some(8),
-            Some(1),
-            Some(8),
-            Some(1),
-            Some(8),
-            Some(1),
-            Some(8),
-            Some(1),
-            Some(8),
-            Some(1),
-            Some(8),
-            Some(1),
-        ];
+        let result = [8, 1, 8, 1, 8, 1, 8, 1, 8, 1, 8, 1, 8, 1, 8, 1];
 
         assert_eq!(
             result,
