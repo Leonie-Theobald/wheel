@@ -1,6 +1,6 @@
 use super::all_discs::AllDiscs;
 use super::single_disc::SingleDisc;
-use crate::sum::AllSums;
+use crate::sum::all_sums::AllSums;
 use bevy::prelude::*;
 
 pub(crate) fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: ResMut<AllDiscs>) {

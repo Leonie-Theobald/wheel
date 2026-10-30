@@ -1,56 +1,16 @@
+pub(crate) mod all_sums;
+pub(crate) mod sum_number;
+pub(crate) mod visualization;
+
 use crate::AllDiscs;
 use crate::disc::single_disc::SingleDisc;
-use crate::disc::single_disc::{COUNT_NUMBERS, DISC_THICKNESS, RING_HEIGHT, ROTATION_STEP};
+use crate::disc::single_disc::{DISC_THICKNESS, RING_HEIGHT, ROTATION_STEP};
+use crate::sum::all_sums::AllSums;
+use crate::sum::sum_number::SumNumber;
+use crate::sum::visualization::SumMaterial;
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use bevy_fontmesh::{JustifyText, TextAnchor, TextMesh, TextMeshStyle};
-
-#[derive(Resource)]
-pub(crate) struct SumMaterial(pub Handle<StandardMaterial>);
-
-#[derive(Default, Resource)]
-pub(crate) struct AllSums {
-    sums: [usize; COUNT_NUMBERS],
-}
-
-impl AllSums {
-    fn reset_sums(&mut self) {
-        self.sums = [0; COUNT_NUMBERS];
-    }
-
-    pub(crate) fn calculate_sums(
-        &mut self,
-        discs: &Res<AllDiscs>,
-        disc_list: &Query<&mut SingleDisc>,
-    ) {
-        self.reset_sums();
-
-        for ring in discs.get_visible_numbers(disc_list) {
-            for (index, number) in ring.iter().enumerate() {
-                self.sums[index] += number;
-            }
-        }
-    }
-
-    pub(crate) fn get_sums(&self) -> [usize; COUNT_NUMBERS] {
-        self.sums
-    }
-
-    pub(crate) fn sums_equal(&self) -> bool {
-        self.sums.iter().all(|sum| sum == &self.sums[0])
-    }
-}
-
-#[derive(Default, Component, Debug)]
-pub(crate) struct SumNumber {
-    index: usize,
-}
-
-impl SumNumber {
-    pub(crate) fn get_index(&self) -> usize {
-        self.index
-    }
-}
 
 pub(crate) fn setup(
     mut commands: Commands,
@@ -67,7 +27,7 @@ pub(crate) fn setup(
     let radius = disc_list.get(bottom_disc_entity).unwrap().get_radius() + RING_HEIGHT;
 
     all_sums.calculate_sums(&discs, &disc_list);
-    for number in all_sums.sums {
+    for number in all_sums.get_sums() {
         // adjust orientation of number to face disc center
         let rotation = Quat::from_rotation_y(rotational_offset);
 
@@ -92,7 +52,7 @@ pub(crate) fn setup(
 
     for (index, (number, translation, rotation)) in numbers_and_positions.into_iter().enumerate() {
         commands.spawn((
-            SumNumber { index },
+            SumNumber::init(index),
             Visibility::Visible,
             TextMesh {
                 text: number.to_string(),
@@ -112,22 +72,5 @@ pub(crate) fn setup(
             },
             NotShadowCaster,
         ));
-    }
-}
-
-pub(crate) fn toggle_visibility(
-    keys: Res<ButtonInput<KeyCode>>,
-    sums: Query<&mut Visibility, With<SumNumber>>,
-) {
-    if !keys.just_pressed(KeyCode::KeyS) {
-        return;
-    }
-
-    for mut visibility in sums {
-        *visibility = match *visibility {
-            Visibility::Visible => Visibility::Hidden,
-            Visibility::Hidden => Visibility::Visible,
-            Visibility::Inherited => Visibility::Hidden,
-        }
     }
 }

@@ -1,6 +1,5 @@
-use super::all_discs::AllDiscs;
-use super::single_disc::SingleDisc;
-use crate::sum::{AllSums, SumMaterial, SumNumber};
+use super::{all_discs::AllDiscs, single_disc::SingleDisc};
+use crate::sum::{all_sums::AllSums, sum_number::SumNumber, visualization::SumMaterial};
 use bevy::prelude::*;
 use bevy_fontmesh::TextMesh;
 

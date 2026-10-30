@@ -3,8 +3,7 @@ mod disc;
 mod lighting;
 mod sum;
 
-use crate::disc::all_discs::AllDiscs;
-use crate::sum::AllSums;
+use crate::{disc::all_discs::AllDiscs, sum::all_sums::AllSums};
 use bevy::prelude::*;
 use bevy_fontmesh::FontMeshPlugin;
 
@@ -22,7 +21,7 @@ fn main() {
             Update,
             (
                 camera::orbit_camera,
-                sum::toggle_visibility,
+                sum::visualization::toggle_visibility,
                 disc::modification::toggle_active_states,
                 disc::modification::step_in_rotation,
                 disc::visualization::color_discs,
