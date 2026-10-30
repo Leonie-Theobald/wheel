@@ -16,7 +16,6 @@ pub(crate) fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut all_discs: ResMut<AllDiscs>,
 ) {
     let top_disc = SingleDisc::init_gear(4., [10, 6, 13, 3, 3, 6, 10, 10], None);
     let upper_middle_disc = SingleDisc::init_gear(
@@ -60,5 +59,10 @@ pub(crate) fn setup(
         height_offset -= DISC_THICKNESS + 0.1;
     }
 
-    all_discs.reset_with(entities[0], entities[1], entities[2], entities[3]);
+    commands.insert_resource(AllDiscs::init(
+        entities[0],
+        entities[1],
+        entities[2],
+        entities[3],
+    ));
 }

@@ -12,7 +12,6 @@ fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_plugins(FontMeshPlugin::<StandardMaterial>::default())
-        .init_resource::<AllDiscs>()
         .init_resource::<AllSums>()
         .add_systems(
             Startup,
