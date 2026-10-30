@@ -2,13 +2,13 @@ use crate::lighting::Lighting;
 use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
 use bevy::prelude::*;
 
-pub(crate) const TARGET_CAMERA_VIEW: Vec3 = Vec3::ZERO;
+pub const TARGET_CAMERA_VIEW: Vec3 = Vec3::ZERO;
 const SENSITIVITY_ROTATION: f32 = 0.005;
 const SENSITIVITY_ZOOM: f32 = 0.02;
 const CAMERA_DISTANCE_MIN: f32 = 10.;
 const CAMERA_DISTANCE_MAX: f32 = 35.;
 
-pub(crate) fn setup(mut commands: Commands) {
+pub fn setup(mut commands: Commands) {
     let orbit_camera = OrbitCamera::init();
     let position = orbit_camera.get_position();
 
@@ -20,14 +20,14 @@ pub(crate) fn setup(mut commands: Commands) {
 }
 
 #[derive(Component)]
-pub(crate) struct OrbitCamera {
+pub struct OrbitCamera {
     yaw: f32,
     pitch: f32,
     camera_distance: f32,
 }
 
 impl OrbitCamera {
-    pub(crate) fn init() -> Self {
+    pub fn init() -> Self {
         Self {
             yaw: 0.7,
             pitch: 0.85,
@@ -35,7 +35,7 @@ impl OrbitCamera {
         }
     }
 
-    pub(crate) fn get_position(&self) -> Vec3 {
+    pub fn get_position(&self) -> Vec3 {
         Vec3::new(
             self.camera_distance * self.yaw.sin() * self.pitch.cos(),
             self.camera_distance * self.pitch.sin(),
@@ -104,7 +104,7 @@ fn zoom_camera(
     transform.look_at(Vec3::ZERO, Vec3::Y);
 }
 
-pub(crate) fn orbit_camera(
+pub fn orbit_camera(
     mouse_motion: Res<AccumulatedMouseMotion>,
     mouse_scroll: Res<AccumulatedMouseScroll>,
     buttons: Res<ButtonInput<MouseButton>>,

@@ -1,16 +1,16 @@
 use bevy::prelude::*;
 
 #[derive(Default, Component, Debug)]
-pub(crate) struct SumNumber {
+pub struct SumNumber {
     index: usize,
 }
 
 impl SumNumber {
-    pub(crate) fn init(index: usize) -> Self {
+    pub fn init(index: usize) -> Self {
         Self { index }
     }
 
-    pub(crate) fn get_index(&self) -> usize {
+    pub fn get_index(&self) -> usize {
         self.index
     }
 }

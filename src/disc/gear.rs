@@ -5,14 +5,14 @@ use crate::disc::single_disc::ROTATION_STEP;
 use bevy::prelude::*;
 
 #[derive(Clone, Component)]
-pub(crate) struct Gear {
+pub struct Gear {
     radius_outer: f32,
     outer_numbers: [usize; COUNT_NUMBERS / 2],
     inner_numbers: Option<[usize; COUNT_NUMBERS]>,
 }
 
 impl Gear {
-    pub(crate) fn init(
+    pub fn init(
         radius_outer: f32,
         outer_numbers: [usize; 8],
         inner_numbers: Option<[usize; COUNT_NUMBERS]>,
@@ -24,11 +24,11 @@ impl Gear {
         }
     }
 
-    pub(crate) fn get_radius(&self) -> f32 {
+    pub fn get_radius(&self) -> f32 {
         self.radius_outer
     }
 
-    pub(crate) fn get_outer_numbers(&self) -> [Option<usize>; COUNT_NUMBERS] {
+    pub fn get_outer_numbers(&self) -> [Option<usize>; COUNT_NUMBERS] {
         [
             Some(self.outer_numbers[0]),
             None,
@@ -49,13 +49,13 @@ impl Gear {
         ]
     }
 
-    pub(crate) fn get_inner_numbers(&self) -> Option<[usize; COUNT_NUMBERS]> {
+    pub fn get_inner_numbers(&self) -> Option<[usize; COUNT_NUMBERS]> {
         self.inner_numbers
     }
 
     // Combines a regular polygon representing the inner part of gear and adding COUNT_NUMBERS teeth
     // around it
-    pub(crate) fn generate_gear_mesh(&self) -> Mesh {
+    pub fn generate_gear_mesh(&self) -> Mesh {
         // initialize with base
         let inner_gear_extrusion = Extrusion::new(
             RegularPolygon::new(self.radius_outer - RING_HEIGHT, COUNT_NUMBERS as u32),

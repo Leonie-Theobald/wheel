@@ -6,7 +6,7 @@ use crate::disc::{
 };
 
 #[derive(Default, Resource)]
-pub(crate) struct AllSums {
+pub struct AllSums {
     sums: [usize; COUNT_NUMBERS],
 }
 
@@ -15,7 +15,7 @@ impl AllSums {
         self.sums = [0; COUNT_NUMBERS];
     }
 
-    pub(crate) fn calculate_sums(
+    pub fn calculate_sums(
         &mut self,
         discs: &Res<AllDiscs>,
         disc_list: &Query<&mut SingleDisc>,
@@ -29,11 +29,11 @@ impl AllSums {
         }
     }
 
-    pub(crate) fn get_sums(&self) -> [usize; COUNT_NUMBERS] {
+    pub fn get_sums(&self) -> [usize; COUNT_NUMBERS] {
         self.sums
     }
 
-    pub(crate) fn sums_equal(&self) -> bool {
+    pub fn sums_equal(&self) -> bool {
         self.sums.iter().all(|sum| sum == &self.sums[0])
     }
 }

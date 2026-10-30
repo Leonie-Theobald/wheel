@@ -2,7 +2,7 @@ use crate::disc::single_disc::{COUNT_NUMBERS, SingleDisc};
 use bevy::prelude::*;
 
 #[derive(Default)]
-pub(crate) enum SelectedDisc {
+pub enum SelectedDisc {
     #[default]
     Top,
     UpperMiddle,
@@ -11,7 +11,7 @@ pub(crate) enum SelectedDisc {
 }
 
 #[derive(Resource)]
-pub(crate) struct AllDiscs {
+pub struct AllDiscs {
     top_disc: Entity,
     upper_middle_disc: Entity,
     lower_middle_disc: Entity,
@@ -20,7 +20,7 @@ pub(crate) struct AllDiscs {
 }
 
 impl AllDiscs {
-    pub(crate) fn init(
+    pub fn init(
         top_disc: Entity,
         upper_middle_disc: Entity,
         lower_middle_disc: Entity,
@@ -35,7 +35,7 @@ impl AllDiscs {
         }
     }
 
-    pub(crate) fn get_selected_disc_entity(&self) -> Entity {
+    pub fn get_selected_disc_entity(&self) -> Entity {
         match &self.selected_disc {
             SelectedDisc::Top => self.top_disc,
             SelectedDisc::UpperMiddle => self.upper_middle_disc,
@@ -44,14 +44,14 @@ impl AllDiscs {
         }
     }
 
-    pub(crate) fn get_bottom_disc_entity(&self) -> Entity {
+    pub fn get_bottom_disc_entity(&self) -> Entity {
         self.bottom_disc
     }
 
     /// The discs are vertically stacked \
     /// This function makes the disc above the currently selected disc the newly selected disc \
     /// If the currently selected disc is the top one, it wraps around to the bottom disc
-    pub(crate) fn select_next_upper_disc(&mut self) {
+    pub fn select_next_upper_disc(&mut self) {
         match self.selected_disc {
             SelectedDisc::Top => {
                 self.selected_disc = SelectedDisc::Bottom;
@@ -71,7 +71,7 @@ impl AllDiscs {
     /// The discs are vertically stacked \
     /// This function makes the disc below the currently selected disc the newly selected disc \
     /// If the currently selected disc is the bottom one, it wraps around to the top disc
-    pub(crate) fn select_next_lower_disc(&mut self) {
+    pub fn select_next_lower_disc(&mut self) {
         match self.selected_disc {
             SelectedDisc::Top => {
                 self.selected_disc = SelectedDisc::UpperMiddle;
@@ -88,7 +88,7 @@ impl AllDiscs {
         };
     }
 
-    pub(crate) fn get_visible_numbers(
+    pub fn get_visible_numbers(
         &self,
         disc_list: &Query<&mut SingleDisc>,
     ) -> [[usize; COUNT_NUMBERS]; 4] {

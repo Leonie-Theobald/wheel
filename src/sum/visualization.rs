@@ -3,9 +3,9 @@ use bevy::prelude::*;
 use crate::sum::sum_number::SumNumber;
 
 #[derive(Resource)]
-pub(crate) struct SumMaterial(pub Handle<StandardMaterial>);
+pub struct SumMaterial(pub Handle<StandardMaterial>);
 
-pub(crate) fn toggle_visibility(
+pub fn toggle_visibility(
     keys: Res<ButtonInput<KeyCode>>,
     sums: Query<&mut Visibility, With<SumNumber>>,
 ) {

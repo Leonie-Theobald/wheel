@@ -1,9 +1,9 @@
-pub(crate) mod all_discs;
+pub mod all_discs;
 mod full_disc;
 mod gear;
-pub(crate) mod modification;
-pub(crate) mod single_disc;
-pub(crate) mod visualization;
+pub mod modification;
+pub mod single_disc;
+pub mod visualization;
 
 use all_discs::AllDiscs;
 use bevy::prelude::*;
@@ -12,7 +12,7 @@ use visualization::{COLOR_NOT_SELECTED, COLOR_SELECTED};
 
 use crate::disc::single_disc::DISC_THICKNESS;
 
-pub(crate) fn setup(
+pub fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,

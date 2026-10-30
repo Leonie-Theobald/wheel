@@ -2,14 +2,14 @@ use crate::disc::single_disc::{COUNT_NUMBERS, DISC_THICKNESS};
 use bevy::prelude::*;
 
 #[derive(Clone)]
-pub(crate) struct FullDisc {
+pub struct FullDisc {
     radius: f32,
     outer_numbers: [usize; COUNT_NUMBERS],
     inner_numbers: [usize; COUNT_NUMBERS],
 }
 
 impl FullDisc {
-    pub(crate) fn init(
+    pub fn init(
         radius: f32,
         outer_numbers: [usize; COUNT_NUMBERS],
         inner_numbers: [usize; COUNT_NUMBERS],
@@ -21,19 +21,19 @@ impl FullDisc {
         }
     }
 
-    pub(crate) fn get_radius(&self) -> f32 {
+    pub fn get_radius(&self) -> f32 {
         self.radius
     }
 
-    pub(crate) fn get_outer_numbers(&self) -> [Option<usize>; COUNT_NUMBERS] {
+    pub fn get_outer_numbers(&self) -> [Option<usize>; COUNT_NUMBERS] {
         self.outer_numbers.map(Some)
     }
 
-    pub(crate) fn get_inner_numbers(&self) -> Option<[usize; COUNT_NUMBERS]> {
+    pub fn get_inner_numbers(&self) -> Option<[usize; COUNT_NUMBERS]> {
         Some(self.inner_numbers)
     }
 
-    pub(crate) fn generate_full_disc_mesh(&self) -> Mesh {
+    pub fn generate_full_disc_mesh(&self) -> Mesh {
         Mesh::from(Extrusion::new(Circle::new(self.radius), DISC_THICKNESS))
     }
 }

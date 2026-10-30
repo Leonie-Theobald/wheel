@@ -3,7 +3,7 @@ use super::single_disc::SingleDisc;
 use crate::sum::all_sums::AllSums;
 use bevy::prelude::*;
 
-pub(crate) fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: ResMut<AllDiscs>) {
+pub fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: ResMut<AllDiscs>) {
     if keys.just_pressed(KeyCode::ArrowUp) {
         discs.select_next_upper_disc();
     }
@@ -12,7 +12,7 @@ pub(crate) fn toggle_active_states(keys: Res<ButtonInput<KeyCode>>, mut discs: R
     }
 }
 
-pub(crate) fn step_in_rotation(
+pub fn step_in_rotation(
     keys: Res<ButtonInput<KeyCode>>,
     discs: Res<AllDiscs>,
     mut disc_list: Query<&mut SingleDisc>,

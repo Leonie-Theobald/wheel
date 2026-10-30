@@ -3,10 +3,10 @@ use super::gear::Gear;
 use bevy::prelude::*;
 use bevy_fontmesh::{JustifyText, TextAnchor, TextMesh, TextMeshStyle};
 
-pub(crate) const COUNT_NUMBERS: usize = 16;
-pub(crate) const ROTATION_STEP: f32 = std::f32::consts::TAU / COUNT_NUMBERS as f32;
-pub(crate) const DISC_THICKNESS: f32 = 0.5;
-pub(crate) const RING_HEIGHT: f32 = 1.;
+pub const COUNT_NUMBERS: usize = 16;
+pub const ROTATION_STEP: f32 = std::f32::consts::TAU / COUNT_NUMBERS as f32;
+pub const DISC_THICKNESS: f32 = 0.5;
+pub const RING_HEIGHT: f32 = 1.;
 
 #[derive(Clone)]
 enum Disc {
@@ -15,13 +15,13 @@ enum Disc {
 }
 
 #[derive(Clone, Component)]
-pub(crate) struct SingleDisc {
+pub struct SingleDisc {
     disc: Disc,
     discrete_rotation: usize,
 }
 
 impl SingleDisc {
-    pub(crate) fn init_gear(
+    pub fn init_gear(
         radius: f32,
         outer_numbers: [usize; 8],
         inner_numbers: Option<[usize; COUNT_NUMBERS]>,
@@ -34,7 +34,7 @@ impl SingleDisc {
         }
     }
 
-    pub(crate) fn init_full_disc(
+    pub fn init_full_disc(
         radius: f32,
         outer_numbers: [usize; COUNT_NUMBERS],
         inner_numbers: [usize; COUNT_NUMBERS],
@@ -47,7 +47,7 @@ impl SingleDisc {
         }
     }
 
-    pub(crate) fn spawn(
+    pub fn spawn(
         &self,
         color: Color,
         height_offset: f32,
@@ -136,40 +136,40 @@ impl SingleDisc {
         .rotated_by(Quat::from_rotation_x(std::f32::consts::FRAC_PI_2))
     }
 
-    pub(crate) fn get_radius(&self) -> f32 {
+    pub fn get_radius(&self) -> f32 {
         match &self.disc {
             Disc::Gear(gear) => gear.get_radius(),
             Disc::FullDisc(full_disc) => full_disc.get_radius(),
         }
     }
 
-    pub(crate) fn get_outer_numbers(&self) -> [Option<usize>; COUNT_NUMBERS] {
+    pub fn get_outer_numbers(&self) -> [Option<usize>; COUNT_NUMBERS] {
         match self.disc {
             Disc::Gear(ref gear) => gear.get_outer_numbers(),
             Disc::FullDisc(ref full_disc) => full_disc.get_outer_numbers(),
         }
     }
 
-    pub(crate) fn get_inner_numbers(&self) -> Option<[usize; COUNT_NUMBERS]> {
+    pub fn get_inner_numbers(&self) -> Option<[usize; COUNT_NUMBERS]> {
         match self.disc {
             Disc::Gear(ref gear) => gear.get_inner_numbers(),
             Disc::FullDisc(ref full_disc) => full_disc.get_inner_numbers(),
         }
     }
 
-    pub(crate) fn get_discrete_rotation(&self) -> usize {
+    pub fn get_discrete_rotation(&self) -> usize {
         self.discrete_rotation
     }
 
-    pub(crate) fn get_rotation_angle(&self) -> f32 {
+    pub fn get_rotation_angle(&self) -> f32 {
         self.discrete_rotation as f32 * std::f32::consts::TAU / COUNT_NUMBERS as f32
     }
 
-    pub(crate) fn step_once_clockwise(&mut self) {
+    pub fn step_once_clockwise(&mut self) {
         self.discrete_rotation = (self.discrete_rotation + 1) % COUNT_NUMBERS;
     }
 
-    pub(crate) fn step_once_counter_clockwise(&mut self) {
+    pub fn step_once_counter_clockwise(&mut self) {
         // use +15 instead of -1 to avoid underflow
         self.discrete_rotation = (self.discrete_rotation + 15) % COUNT_NUMBERS;
     }

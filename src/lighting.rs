@@ -2,9 +2,9 @@ use crate::camera::OrbitCamera;
 use bevy::prelude::*;
 
 #[derive(Clone, Component)]
-pub(crate) struct Lighting;
+pub struct Lighting;
 
-pub(crate) fn setup(mut commands: Commands, mut ambient: ResMut<GlobalAmbientLight>) {
+pub fn setup(mut commands: Commands, mut ambient: ResMut<GlobalAmbientLight>) {
     ambient.brightness = 300.;
 
     commands.spawn((

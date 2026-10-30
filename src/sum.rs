@@ -1,6 +1,6 @@
-pub(crate) mod all_sums;
-pub(crate) mod sum_number;
-pub(crate) mod visualization;
+pub mod all_sums;
+pub mod sum_number;
+pub mod visualization;
 
 use crate::AllDiscs;
 use crate::disc::single_disc::SingleDisc;
@@ -12,7 +12,7 @@ use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use bevy_fontmesh::{JustifyText, TextAnchor, TextMesh, TextMeshStyle};
 
-pub(crate) fn setup(
+pub fn setup(
     mut commands: Commands,
     mut materials: ResMut<Assets<StandardMaterial>>,
     discs: Res<AllDiscs>,

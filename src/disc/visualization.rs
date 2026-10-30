@@ -3,10 +3,10 @@ use crate::sum::{all_sums::AllSums, sum_number::SumNumber, visualization::SumMat
 use bevy::prelude::*;
 use bevy_fontmesh::TextMesh;
 
-pub(crate) const COLOR_SELECTED: Color = Color::srgb(0.3, 0.3, 0.3);
-pub(crate) const COLOR_NOT_SELECTED: Color = Color::srgb(0.8, 0.8, 0.8);
+pub const COLOR_SELECTED: Color = Color::srgb(0.3, 0.3, 0.3);
+pub const COLOR_NOT_SELECTED: Color = Color::srgb(0.8, 0.8, 0.8);
 
-pub(crate) fn color_discs(
+pub fn color_discs(
     discs: ResMut<AllDiscs>,
     mut disc_list: Query<&MeshMaterial3d<StandardMaterial>, With<SingleDisc>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -27,7 +27,7 @@ pub(crate) fn color_discs(
     materials.get_mut(&material_handle.0).unwrap().base_color = COLOR_SELECTED;
 }
 
-pub(crate) fn rotate_discs(
+pub fn rotate_discs(
     mut disc_list: Query<(&SingleDisc, &mut Transform), Changed<SingleDisc>>,
 ) {
     for (disc, mut transform) in &mut disc_list {
@@ -35,7 +35,7 @@ pub(crate) fn rotate_discs(
     }
 }
 
-pub(crate) fn draw_sums(
+pub fn draw_sums(
     all_sums: Res<AllSums>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     sum_material: Res<SumMaterial>,
